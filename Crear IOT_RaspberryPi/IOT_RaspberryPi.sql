@@ -3,6 +3,8 @@ GO
 USE IOT_RaspberryPI
 GO
 
+
+
 -- Tabla que guardara los diferentes sistemas que esten funcionando
 CREATE TABLE IOTRP_Sistemas
 (
@@ -28,20 +30,6 @@ CREATE TABLE IOTRP_Eventos
 )
 GO
 
--- Tabla que guardara los diferentes sensores que hay en el sistema
-CREATE TABLE IOTRP_Sensores
-(
-	 ID SmallInt NOT NULL
-	,ID_Medida SmallInt NOT NULL
-	,Valor Int NOT NULL
-	,Marca VarChar(40)
-	,Modelo VarChar(40)
-	,Rango VarChar(40)
-	,Tipo VarChar(40)
-	,Constraint PK_IOTRP_Sensores Primary Key (ID)
-) 
-GO
-
 -- Tabla que guardara las diferentes acciones que puede realizar el sistema
 CREATE TABLE IOTRP_Acciones
 (
@@ -59,11 +47,24 @@ CREATE TABLE IOTRP_Medidas
 (
 	 ID SmallInt NOT NULL
 	,ID_Evento SmallInt NOT NULL
-	,ID_Sensor SmallInt NOT NULL
 	,Valor Int NOT NULL
 	,Unidad VarChar(40)
 	,Constraint PK_IOTRP_Medidas Primary Key (ID)
 	,Constraint FK_Eventos_Medidas Foreign Key (ID_Evento) REFERENCES IOTRP_Eventos (ID) 
-	,Constraint FK_Medidas_Sensores Foreign Key (ID_Sensor) REFERENCES IOTRP_Sensores (ID) 
+) 
+GO
+
+-- Tabla que guardara los diferentes sensores que hay en el sistema
+CREATE TABLE IOTRP_Sensores
+(
+	 ID SmallInt NOT NULL
+	,ID_Medida SmallInt NOT NULL
+	,Valor Int NOT NULL
+	,Marca VarChar(40)
+	,Modelo VarChar(40)
+	,Rango VarChar(40)
+	,Tipo VarChar(40)
+	,Constraint PK_IOTRP_Sensores Primary Key (ID)
+	,Constraint FK_Sensores_Medidas Foreign Key (ID_Medida) REFERENCES IOTRP_Medidas (ID)
 ) 
 GO
