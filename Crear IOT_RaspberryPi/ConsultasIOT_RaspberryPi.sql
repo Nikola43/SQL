@@ -1,0 +1,11 @@
+USE IOT_RaspberryPI
+
+SELECT * FROM IOTRP_Sistemas
+
+SELECT * FROM IOTRP_Eventos
+
+SELECT * FROM IOTRP_Acciones
+
+SELECT * FROM IOTRP_Medidas
+
+SELECT * FROM IOTRP_Sensores
