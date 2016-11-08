@@ -1,0 +1,4 @@
+CREATE DATABASE CL_Terrenos
+GO
+USE CL_Terrenos
+GO
