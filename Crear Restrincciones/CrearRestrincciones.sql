@@ -37,12 +37,12 @@ Go
 --NombreRelacionado: Cadena de tamaño 15. Define una FK para relacionarla con la columna "Nombre” de la tabla DatosRestrictivos.
 
 --¿Deberíamos poner la misma restricción que en la columna correspondiente? 
-	-- No hace nada ponerla 2 veces, podriamos si acaso añadir otra restrinccion en la tabla en la que es 
-	-- FK, y asi deberia respetar la de la clave donde se crea y la de la tabla donde es referenciada
+	-- NO, No hace nada ponerla 2 veces, podriamos si acaso añadir otra restriccion en la tabla en la que es 
+	-- FK, y asi deberia respetar la de la tabla donde se crea y la de la tabla donde es referenciada
 --¿Qué ocurriría si la ponemos?
-	-- FUKCING BREAK BRAIN, Funcionaria igual 
+	-- Funcionaria igual 
 --¿Y si no la ponemos?
-	-- Hereda las restricciones de la clave donde se crea
+	-- Hereda las restricciones de la tabla donde se crea
 
 --PalabraTabu: Cadena de longitud max 20. No admitirá los valores "Barcenas”, "Gurtel”, "Púnica”, "Bankia” ni "sobre”. Tampoco admitirá ninguna palabra terminada en "eo”
 --NumRarito: TinyInt menor que 20. No admitirá números primos.
