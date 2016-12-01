@@ -19,6 +19,7 @@ Se pide un script en T-SQL que cree la base de datos en 3FN de acuerdo a los req
 USE LeoBikes
 -- a. Crea una nueva tabla LB_Avisos, para registrar los productos que están por debajo de su stock mínimo. 
 -- Los datos a guardar serán el ID del producto, la fecha en que se creó el aviso, el stock mínimo y el stock actual.
+------------ Avisos ------------
 CREATE TABLE LB_Avisos 
 (
 	-- Crear columnas
@@ -28,13 +29,12 @@ CREATE TABLE LB_Avisos
 	StockMinimo TinyInt NULL,
 
 	-- Claves PK Y FK
-	-- PK de la tabla
-	Constraint PK_Avisos Primary Key (ID_Producto),
+	Constraint PK_Avisos Primary Key (ID_Producto), -- PK de la tabla
 
-	-- FK Productos
 	Constraint FK_Avisos_Productos_Producto Foreign Key (ID_Producto) 
-	REFERENCES LB_Productos(Codigo) ON DELETE CASCADE ON UPDATE CASCADE,
+	REFERENCES LB_Productos(Codigo) ON UPDATE CASCADE ON DELETE NO ACTION, -- FK Productos
 )
+Go
 
 -- b. Sobre la tabla LB_Productos añade un valor por defecto a las columnas Stock_Actual (0) y Stock_Minimo (0).
 	-- Establecer stock por defecto
@@ -70,7 +70,7 @@ CREATE TABLE LB_Avisos
 	-- Crear FK_Avisos_Productos
 	ALTER TABLE LB_Avisos 
 	ADD Constraint FK_Avisos_Productos Foreign Key (ID_Producto)
-	REFERENCES LB_Productos (Codigo) ON DELETE NO ACTION ON UPDATE NO ACTION
+	REFERENCES LB_Productos (Codigo) ON UPDATE CASCADE ON DELETE CASCADE
 
 -- f. En la misma tabla añade una restricción para que el valor de la nueva columna Fecha_Actualiza, 
 -- si no es nulo, sea superior a Fecha_Crea.
@@ -86,4 +86,4 @@ CREATE TABLE LB_Avisos
 --h. Añade una columna calculada a la tabla LB_Productos llamada Margen que contenga la diferencia entre Stock_Actual y Stock_Minimo.
 	-- Crear columna calculada
 	ALTER TABLE LB_Productos 
-	ADD [Margen de diferencia Stock Actual y Stock Minimo] AS Stock_Actual - Stock_Minimo
+	ADD [Diferencia_StockActual_StockMinimo] AS Stock_Actual - Stock_Minimo
