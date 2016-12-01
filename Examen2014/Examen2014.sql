@@ -125,7 +125,11 @@ CREATE TABLE AN_Tierras
 	-- Creacion Columnas
 	ID Int NOT NULL,
 	Nombre nVarChar NULL,
-	Mezcla nVarChar NULL,
+	PorcentajeArcillas Int NULL,
+	PorcentajeSilicatos Int NULL,
+	PorcentajeNitratos Int NULL,
+	PorcentajeSustratos Int NULL,
+	PorcentajeOtros Int NULL,
 
 	-- Creacion PK
 	Constraint PK_Tierras Primary Key (ID)
@@ -154,6 +158,7 @@ CREATE TABLE AN_SeresVivos_Acuarios
     -- Creacion Columnas
 	ID_SerVivo Int NOT NULL,
 	ID_Acuario Int NOT NULL,
+	CantidadIndividuos Int NULL,
 
 	-- Creacion PK Y FK
 	Constraint PK_SeresVivos_Acuarios Primary Key (ID_SerVivo, ID_Acuario), -- PK SeresVivos_Acuarios compuesta 
@@ -181,3 +186,34 @@ CREATE TABLE AN_PecesIncompatibles
 	Constraint FK_PecesIncompatiblesPez2 Foreign Key (ID_Pez2)
     REFERENCES AN_Peces (ID) ON UPDATE CASCADE ON DELETE NO ACTION, -- FK Peces
 )
+
+---------------------- CREACION RESTRICCIONES ----------------------
+--Las dimensiones del acuario no pueden ser negativas.
+ALTER TABLE AN_Acuarios 
+ADD Constraint CK_DimensionesPositivas CHECK (Ancho < 0 AND Alto < 0 AND Largo < 0) 
+
+--La temperatura del acuario debe estar entre 10 y 30º.
+ALTER TABLE AN_Acuarios
+ADD Constraint CK_RangoTemperatura CHECK ( Temperatura BETWEEN 10 AND 30 )
+
+--El atributo "tipo" de los peces puede tomar uno de los siguientes valores: T, R, P, S, A o L.
+ALTER TABLE AN_Peces
+ADD Constraint CK_Tipo CHECK ( Tipo IN ('T', 'R', 'P', 'S', 'A', 'L') )
+
+--La necesidad de luz de las plantas mide el número de horas que necesitan luz directa
+--y es un valor entre 4 y 10.
+ALTER TABLE AN_Plantas
+ADD Constraint CK_RangoLuz CHECK ( NecesidadDeLuz BETWEEN 4 AND 10 )
+
+--Una especie no puede ser incompatible con ella misma.
+--ALTER TABLE AN_SeresVivos 
+--ADD Constraint CK_EspeciaIncompatible CHECK ( )
+
+--Los porcentajes de arcillas, silicatos, nitratos, sustratos y otros sumados deben ser
+--igual a 100.
+ALTER TABLE AN_Tierras
+ADD Constraint CK_PorcentajeTierra CHECK ( 100 >= Arcilla + Silicatos + Nitratos + Sustratos + Otros ),
+
+--Dos socios no pueden tener el mismo email
+--ALTER TABLE AN_Socios
+--ADD Constraint CK_EmailDistinto CHECK ( Email NOT IN ( 'gd', 'h' ) )
