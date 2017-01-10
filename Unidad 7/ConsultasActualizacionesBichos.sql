@@ -37,9 +37,30 @@ SELECT Alias FROM BI_Mascotas
 WHERE CodigoPropietario = '102'
 
 --6. Con los códigos obtenidos en la consulta anterior, escribe los INSERT correspondientes en la tabla BI_Visitas. La fecha y hora se tomarán del sistema.
---1. Todos los perros del cliente 104 han enfermado el 20 de diciembre de sarna.
---1. Escribe un SELECT para averiguar los códigos de todos los perros del cliente 104
---1. Con los códigos obtenidos en la consulta anterior, escribe los INSERT correspondientes en la tabla BI_Mascotas_Enfermedades
---1. Escribe una consulta para obtener el nombre, especie y raza de todas las mascotas, ordenados por edad.
---1. Escribe los códigos de todas las mascotas que han ido alguna vez al veterinario un lunes o un viernes. Para averiguar el dia de la semana de una fecha se usa la función DATEPART (WeekDay, fecha) que devuelve un entero entre 1 y 7 donde el 1 corresponde al lunes, el dos al martes y así sucesivamente.
---NOTA: El servidor se puede configurar para que la semana empiece en lunes o domingo.
+SELECT * FROM BI_Visitas
+SELECT * FROM BI_Mascotas
+
+INSERT INTO BI_Visitas
+VALUES ( CURRENT_TIMESTAMP, 39, 32, 'GM002')
+
+INSERT INTO BI_Visitas
+VALUES ( CURRENT_TIMESTAMP, 38, 30, 'PH002')
+
+--7. Todos los perros del cliente 104 han enfermado el 20 de diciembre de sarna. Escribe un SELECT para averiguar los códigos de todos los perros del cliente 104
+SELECT Alias, Codigo FROM BI_Mascotas
+WHERE CodigoPropietario = '104' AND Especie = 'Perro'
+
+--9. Con los códigos obtenidos en la consulta anterior, escribe los INSERT correspondientes en la tabla BI_Mascotas_Enfermedades
+INSERT INTO BI_Mascotas_Enfermedades
+VALUES ( 4, 'PH004', CURRENT_TIMESTAMP, NULL ) 
+
+INSERT INTO BI_Mascotas_Enfermedades
+VALUES ( 6, 'PH104', CURRENT_TIMESTAMP, NULL ) 
+
+INSERT INTO BI_Mascotas_Enfermedades
+VALUES ( 6, 'PM004', CURRENT_TIMESTAMP, NULL ) 
+--10. Escribe una consulta para obtener el nombre, especie y raza de todas las mascotas, ordenados por edad.
+SELECT Alias, Especie, Raza, Year(CURRENT_TIMESTAMP- CAST (FechaNacimiento AS datetime))-1900 AS Edad FROM BI_Mascotas
+ORDER BY Edad
+
+--11. Escribe los códigos de todas las mascotas que han ido alguna vez al veterinario un lunes o un viernes. Para averiguar el dia de la semana de una fecha se usa la función DATEPART (WeekDay, fecha) que devuelve un entero entre 1 y 7 donde el 1 corresponde al lunes, el dos al martes y así sucesivamente.

@@ -21,8 +21,6 @@ FROM HumanResources.Employee
 WHERE Gender = 'F' AND (YEAR(CURRENT_TIMESTAMP) - YEAR(HireDate)) > 5
 
 --Ciudades correspondientes a los estados 11, 14, 35 o 70, sin repetir. Usar la tabla Person.Address
-SELECT * FROM Person.Address
-
-SELECT City 
+SELECT DISTINCT City, StateProvinceID 
 FROM Person.Address
-WHERE StateProvinceID IN (11, 14, 35, 70)
+WHERE StateProvinceID IN ('11', '14', '35', '70')
