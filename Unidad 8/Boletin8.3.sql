@@ -1,19 +1,74 @@
 --Consultas 8.3
 --Base de datos: AdventureWorks2012
+USE AdventureWorks2012
 
 --Consultas sencillas
---1.Nombre del producto, código y precio, ordenado de mayor a menor precio
---2.Número de direcciones de cada Estado/Provincia
---3.Nombre del producto, código, número, tamaño y peso de los productos que estaban a la venta durante todo el mes de septiembre de 2002. No queremos que aparezcan aquellos cuyo peso sea superior a 2000.
---4.Margen de beneficio de cada producto (Precio de venta menos el coste), y porcentaje que supone respecto del precio de venta.
+--1.Nombre del producto, cï¿½digo y precio, ordenado de mayor a menor precio
+SELECT Name, ProductID, ListPrice
+FROM Production.Product
+ORDER BY StandardCost DESC
+
+--2.Nï¿½mero de direcciones de cada Estado/Provincia
+SELECT COUNT(AddressID) AS [Numero de direcciones], StateProvinceID
+FROM Person.Address
+GROUP BY StateProvinceID
+
+--3.Nombre del producto, cï¿½digo, nï¿½mero, tamaï¿½o y peso de los productos que estaban a la venta durante todo el mes
+-- de septiembre de 2002. No queremos que aparezcan aquellos cuyo peso sea superior a 2000.
+SELECT Name, ProductID, ProductNumber, Size, Weight
+FROM Production.Product
+WHERE Weight < 2000
+
+--4.Margen de beneficio de cada producto (Precio de venta menos el coste), y porcentaje que supone
+-- respecto del precio de venta. 
+SELECT ListPrice - StandardCost AS [Beneficio], ((ListPrice - StandardCost) / StandardCost) * 100 AS Porcentaje
+FROM Production.Product
+WHERE ListPrice > 0 AND StandardCost > 0
+
 --Consultas de dificultad media
---5.Número de productos de cada categoría
---6.Igual a la anterior, pero considerando las categorías generales (categorías de categorías).
---7.Número de unidades vendidas de cada producto cada año.
---8.Nombre completo, compañía y total facturado a cada cliente
---9.Número de producto, nombre y precio de todos aquellos en cuya descripción aparezcan las palabras "race”, "competition” o "performance”
+--5.Nï¿½mero de productos de cada categorï¿½a
+SELECT COUNT(ProductID) AS [Numero de productos], ProductSubcategoryID 
+FROM Production.Product
+GROUP BY ProductSubcategoryID 
+
+--6.Igual a la anterior, pero considerando las categorï¿½as generales (categorï¿½as de categorï¿½as).
+SELECT COUNT(ProductID) AS [Numero de productos], Class
+FROM Production.Product
+GROUP BY Class
+
+--7.Nï¿½mero de unidades vendidas de cada producto cada aï¿½o.
+SELECT COUNT(ProductID) AS [Numero de unidades] , YEAR(ModifiedDate) [Anio]
+FROM Sales.SalesOrderDetail
+GROUP BY YEAR(ModifiedDate)
+
+--8.Nombre completo, compaï¿½ï¿½a y total facturado a cada cliente
+
+--9.Nï¿½mero de producto, nombre y precio de todos aquellos en cuya descripciï¿½n aparezcan las palabras
+--  "raceï¿½, "competitionï¿½ o "performanceï¿½
+SELECT ProductNumber, Name, ListPrice
+FROM Production.Product
+WHERE ProductDescription.Description IN ('%race%')
+
 --Consultas avanzadas
---10.Facturación total en cada país
---11.Facturación total en cada Estado
---12.Margen medio de beneficios y total facturado en cada país
---Última modificación: martes, 26 de enero de 2016, 14:20
+--10.Facturaciï¿½n total en cada paï¿½s
+SELECT
+FROM Sales.SalesTerritory
+
+--11.Facturaciï¿½n total en cada Estado
+--12.Margen medio de beneficios y total facturado en cada paï¿½s
+
+-- Buscar tabla en bd
+DECLARE @Columna varchar(30) = '%Tabla%';
+
+SELECT      c.name  AS 'ColumnName' ,t.name AS 'TableName'
+FROM        sys.columns c
+JOIN        sys.tables t ON c.object_id = t.object_id
+WHERE       c.name LIKE @Tabla
+ORDER BY    TableName, ColumnName;
+
+-- Buscar columna en bd
+DECLARE @Columna varchar(30) = '%state%'
+select * from INFORMATION_SCHEMA.COLUMNS
+where COLUMN_NAME like @Columna
+order by TABLE_NAME
+
