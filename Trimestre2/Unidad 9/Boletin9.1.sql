@@ -25,7 +25,7 @@ GROUP BY CategoryName
 -- 4.	Nombre de la compañía de todos los clientes que hayan comprado queso de cabrales o tofu.
 SELECT C.CompanyName
 FROM Customers AS C
-INNER JOIN Products AS P ON
+INNER JOIN Employees
 
 
 -- 5.	Empleados (ID, nombre, apellidos y teléfono) que han vendido algo a Bon app' o Meter Franken.

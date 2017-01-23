@@ -28,9 +28,11 @@ FROM sales
 GROUP BY title_id, YEAR(ord_date)
 
 --6. Numero de autores que han escrito cada libro (title_id y numero de autores).
-SELECT au_id, COUNT(title_id) AS [Numero de libros]
+SELECT title_id, COUNT(au_id) AS [Numero de autores]
 FROM titleauthor
-GROUP BY au_id
+GROUP BY title_id
+ORDER BY COUNT(au_id) DESC
+
 
 --7. ID, Titulo, tipo y precio de los libros cuyo adelanto inicial (advance) tenga un valor superior a $7.000,
 --   ordenado por tipo y titulo

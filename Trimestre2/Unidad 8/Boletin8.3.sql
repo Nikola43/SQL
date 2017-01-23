@@ -51,24 +51,12 @@ WHERE ProductDescription.Description IN ('%race%')
 
 --Consultas avanzadas
 --10.Facturaci�n total en cada pa�s
-SELECT
-FROM Sales.SalesTerritory
+SELECT (SOD.UnitPrice * SOD.OrderQty) AS [Facturacion anual], ST.Name
+FROM Sales.SalesOrderDetail AS SOD
+INNER JOIN Sales.SalesOrderHeader AS SOH ON SOD.SalesOrderID = SOH.SalesOrderID
+INNER JOIN Sales.SalesTerritory AS ST ON SOH.TerritoryID = ST.TerritoryID
+GROUP BY ST.Name, SOD.UnitPrice, SOD.OrderQty
 
 --11.Facturaci�n total en cada Estado
 --12.Margen medio de beneficios y total facturado en cada pa�s
-
--- Buscar tabla en bd
-DECLARE @Columna varchar(30) = '%Tabla%';
-
-SELECT      c.name  AS 'ColumnName' ,t.name AS 'TableName'
-FROM        sys.columns c
-JOIN        sys.tables t ON c.object_id = t.object_id
-WHERE       c.name LIKE @Tabla
-ORDER BY    TableName, ColumnName;
-
--- Buscar columna en bd
-DECLARE @Columna varchar(30) = '%state%'
-select * from INFORMATION_SCHEMA.COLUMNS
-where COLUMN_NAME like @Columna
-order by TABLE_NAME
 
