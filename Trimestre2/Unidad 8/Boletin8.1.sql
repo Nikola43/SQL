@@ -44,7 +44,13 @@ ORDER BY MONTH(OrderDate)
 
 --8. Año y tiempo medio transcurrido entre la fecha de cada pedido (OrderDate) y la fecha en la que lo hemos enviado (ShipDate),
 --   en días para cada año.
-SELECT 
 
 --9. ID del distribuidor y número de pedidos enviados a través de ese distribuidor.
+SELECT CustomerID, COUNT(OrderID) AS [numero de pedidos enviados]
+FROM Orders
+GROUP BY CustomerID
+
 --10. ID de cada proveedor y número de productos distintos que nos suministra.
+SELECT DISTINCT SupplierID, COUNT(ProductID) AS [numero de productos distintos]
+FROM Products
+GROUP BY SupplierID

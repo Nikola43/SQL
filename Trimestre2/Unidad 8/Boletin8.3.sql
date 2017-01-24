@@ -47,7 +47,7 @@ GROUP BY YEAR(ModifiedDate)
 --  "race�, "competition� o "performance�
 SELECT ProductNumber, Name, ListPrice
 FROM Production.Product
-WHERE ProductDescription.Description IN ('%race%')
+WHERE Production.ProductDescription.Description IN ('%race%')
 
 --Consultas avanzadas
 --10.Facturaci�n total en cada pa�s
@@ -58,5 +58,11 @@ INNER JOIN Sales.SalesTerritory AS ST ON SOH.TerritoryID = ST.TerritoryID
 GROUP BY ST.Name, SOD.UnitPrice, SOD.OrderQty
 
 --11.Facturaci�n total en cada Estado
+SELECT (SOD.UnitPrice * SOD.OrderQty) AS [Facturacion anual], ST.Name
+FROM Sales.SalesOrderDetail AS SOD
+INNER JOIN Sales.SalesOrderHeader AS SOH ON SOD.SalesOrderID = SOH.SalesOrderID
+INNER JOIN Sales.SalesTerritory AS ST ON SOH.TerritoryID = ST.TerritoryID
+GROUP BY ST.Name, SOD.UnitPrice, SOD.OrderQty
+
 --12.Margen medio de beneficios y total facturado en cada pa�s
 

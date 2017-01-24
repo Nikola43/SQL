@@ -1,5 +1,7 @@
+USE AdventureWorks2012
+
 -- Buscar tabla en bd
-DECLARE @Tabla varchar(50) = '%Sales%';
+DECLARE @Tabla varchar(50) = '%state%';
 
 SELECT      c.name  AS 'ColumnName' ,t.name AS 'TableName'
 FROM        sys.columns c
