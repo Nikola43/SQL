@@ -17,15 +17,13 @@ WHERE T.TerritoryDescription IN ('New York', 'Seattle', 'Vermont', 'Columbia', '
 GROUP BY FirstName, LastName, HomePhone
 
 -- 3.	Número de productos de cada categoría y nombre de la categoría.
-SELECT COUNT(P.ProductID), C.CategoryName
+SELECT COUNT(P.ProductID) AS [Numero de productos] , C.CategoryName
 FROM Products AS P
 INNER JOIN Categories AS C ON P.CategoryID = C.CategoryID
 GROUP BY CategoryName
 
 -- 4.	Nombre de la compañía de todos los clientes que hayan comprado queso de cabrales o tofu.
-SELECT C.CompanyName
-FROM Customers AS C
-INNER JOIN Employees
+
 
 
 -- 5.	Empleados (ID, nombre, apellidos y teléfono) que han vendido algo a Bon app' o Meter Franken.
@@ -34,5 +32,18 @@ INNER JOIN Employees
 -- 8.	Total de ventas en US$ de cada empleado cada año (nombre, apellidos, dirección).
 -- 9.	Ventas de cada producto en el año 97. Nombre del producto y unidades.
 -- 10.	Cuál es el producto del que hemos vendido más unidades en cada país. *
+
+SELECT MAX(Quantity) AS UnidadesVendidas, O.ShipCountry AS Pais
+FROM [Order Details] AS OD
+INNER JOIN Orders AS O ON O.OrderID=OD.OrderID
+INNER JOIN Products AS P On P.ProductID=OD.ProductID
+WHERE Quantity IN 
+(
+	SELECT SUM(Quantity) FROM [Order Details]
+	GROUP BY Quantity
+)
+Group By O.ShipCountry, Quantity
+
+
 -- 11.	Empleados (nombre y apellidos) que trabajan a las órdenes de Andrew Fuller.
 -- 12.	Número de subordinados que tiene cada empleado, incluyendo los que no tienen ninguno. Nombre, apellidos, ID.
