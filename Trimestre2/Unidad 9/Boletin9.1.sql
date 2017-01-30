@@ -23,8 +23,12 @@ INNER JOIN Categories AS C ON P.CategoryID = C.CategoryID
 GROUP BY CategoryName
 
 -- 4.	Nombre de la compañía de todos los clientes que hayan comprado queso de cabrales o tofu.
-
-
+SELECT C.CompanyName, P.ProductName
+FROM Customers AS C
+INNER JOIN Orders AS O ON C.CustomerID = O.CustomerID
+INNER JOIN [Order Details] AS OD ON O.OrderID = OD.OrderID
+INNER JOIN Products AS P ON OD.ProductID = P.ProductID
+WHERE P.ProductName IN ('tofu', 'Queso Cabrales')
 
 -- 5.	Empleados (ID, nombre, apellidos y teléfono) que han vendido algo a Bon app' o Meter Franken.
 -- 6.	Empleados (ID, nombre, apellidos, mes y día de su cumpleaños) que no han vendido nunca nada a ningún cliente de Francia. *

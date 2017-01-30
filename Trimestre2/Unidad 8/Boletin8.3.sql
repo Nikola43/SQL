@@ -17,7 +17,6 @@ GROUP BY StateProvinceID
 -- de septiembre de 2002. No queremos que aparezcan aquellos cuyo peso sea superior a 2000.
 SELECT Name, ProductID, ProductNumber, Size, Weight
 FROM Production.Product
-WHERE Weight < 2000
 
 --4.Margen de beneficio de cada producto (Precio de venta menos el coste), y porcentaje que supone
 -- respecto del precio de venta. 
