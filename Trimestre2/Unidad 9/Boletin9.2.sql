@@ -6,6 +6,7 @@ USE Northwind
 SELECT COUNT(CustomerID) AS [Numero de Clientes], Country
 FROM Customers
 GROUP BY Country
+ORDER BY Country
 
 --2. Número de clientes diferentes que compran cada producto.
 SELECT COUNT( DISTINCT C.CustomerID) AS Cliente, OD.ProductID
@@ -76,12 +77,23 @@ WHERE YEAR(O.OrderDate) = '1997'
 GROUP BY C.CategoryName
 
 --8. Productos que han comprado más de un cliente del mismo país, indicando el
---nombre del producto, el país y el número de clientes distintos de ese país que
---lo han comprado.
+--nombre del producto, el país y el número de clientes distintos de ese país que lo han comprado.
+SELECT P.ProductName, C.Country, COUNT( DISTINCT C.CustomerID) AS NumeroClientes
+FROM Customers AS C
+INNER JOIN Orders AS O
+ON C.CustomerID = O.CustomerID
+INNER JOIN [Order Details] AS OD
+ON O.OrderID = OD.OrderID
+INNER JOIN Products AS P
+ON OD.ProductID = P.ProductID
+GROUP BY P.ProductName, C.Country
+HAVING COUNT( DISTINCT C.CustomerID) > 1
 
 
 
 --9. Total de ventas (US$) en cada país cada año.
+SELECT 
+
 --10. Producto superventas de cada año, indicando año, nombre del producto,
 --categoría y cifra total de ventas.
 --11. Cifra de ventas de cada producto en el año 97 y su aumento o disminución

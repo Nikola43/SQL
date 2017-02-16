@@ -37,10 +37,13 @@ WHERE P.ProductName IN ('tofu', 'Queso Cabrales')
 -- 9.	Ventas de cada producto en el año 97. Nombre del producto y unidades.
 -- 10.	Cuál es el producto del que hemos vendido más unidades en cada país. *
 
+
 SELECT MAX(Quantity) AS UnidadesVendidas, O.ShipCountry AS Pais
 FROM [Order Details] AS OD
-INNER JOIN Orders AS O ON O.OrderID=OD.OrderID
-INNER JOIN Products AS P On P.ProductID=OD.ProductID
+INNER JOIN Orders AS O
+ON O.OrderID=OD.OrderID
+INNER JOIN Products AS P 
+On P.ProductID=OD.ProductID
 WHERE Quantity IN 
 (
 	SELECT SUM(Quantity) FROM [Order Details]
