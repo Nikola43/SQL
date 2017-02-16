@@ -75,12 +75,12 @@ ON P.CategoryID = C.CategoryID
 WHERE YEAR(O.OrderDate) = '1997' 
 GROUP BY C.CategoryName
 
-
-
-
 --8. Productos que han comprado más de un cliente del mismo país, indicando el
 --nombre del producto, el país y el número de clientes distintos de ese país que
 --lo han comprado.
+
+
+
 --9. Total de ventas (US$) en cada país cada año.
 --10. Producto superventas de cada año, indicando año, nombre del producto,
 --categoría y cifra total de ventas.
