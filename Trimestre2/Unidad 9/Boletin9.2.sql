@@ -51,7 +51,7 @@ ON OD.ProductID = P.ProductID
 WHERE P.ProductName NOT IN ('Chartreuse verte', 'Ravioli Angelo')
 
 --6. Número de unidades de cada categoría de producto que ha vendido cada empleado.
-SELECT COUNT(P.ProductID) AS [Numero de unidades], C.CategoryName
+SELECT SUM(OD.Quantity) AS [Numero de unidades], C.CategoryID, E.FirstName
 FROM Employees AS E
 INNER JOIN Orders AS O
 ON E.EmployeeID = O.EmployeeID
@@ -61,8 +61,8 @@ INNER JOIN Products AS P
 ON OD.ProductID = P.ProductID
 INNER JOIN Categories AS C
 ON P.CategoryID = C.CategoryID
-GROUP BY C.CategoryName, E.EmployeeID
-ORDER BY C.CategoryName, COUNT(P.ProductID)
+GROUP BY E.FirstName, C.CategoryID
+ORDER BY E.FirstName, C.CategoryID
 
 --7. Total de ventas (US$) de cada categoría en el año 97.
 SELECT SUM(OD.Quantity * OD.UnitPrice) AS [Total Ventas], C.CategoryName
@@ -89,10 +89,16 @@ ON OD.ProductID = P.ProductID
 GROUP BY P.ProductName, C.Country
 HAVING COUNT( DISTINCT C.CustomerID) > 1
 
-
-
 --9. Total de ventas (US$) en cada país cada año.
-SELECT 
+SELECT CAST(SUM((OD.UnitPrice * Quantity) - (OD.UnitPrice * Quantity * Discount) ) AS smallmoney) AS TotalVentas, S.CompanyName , YEAR(O.OrderDate) AÑO
+FROM Suppliers AS S
+INNER JOIN Products AS P
+ON S.SupplierID = P.SupplierID
+INNER JOIN [Order Details] AS OD
+ON P.ProductID = OD.ProductID
+INNER JOIN Orders AS O
+ON O.OrderID = OD.OrderID
+GROUP BY YEAR(O.OrderDate), S.CompanyName
 
 --10. Producto superventas de cada año, indicando año, nombre del producto,
 --categoría y cifra total de ventas.
