@@ -100,11 +100,18 @@ INNER JOIN Orders AS O
 ON O.OrderID = OD.OrderID
 GROUP BY YEAR(O.OrderDate), S.CompanyName
 
---10. Producto superventas de cada año, indicando año, nombre del producto,
---categoría y cifra total de ventas.
---11. Cifra de ventas de cada producto en el año 97 y su aumento o disminución
---respecto al año anterior en US $ y en %.
+--10. Producto superventas de cada año, indicando año, nombre del producto, categoría y cifra total de ventas.
+--11. Cifra de ventas de cada producto en el año 97 y su aumento o disminución respecto al año anterior en US $ y en %.
+
 --12. Mejor cliente (el que más nos compra) de cada país.
+SELECT DISTINCT C.CompanyName, C.Country ,MAX(OD.UnitPrice * OD.Quantity) AS Ventas
+FROM Customers AS C
+INNER JOIN Orders AS O
+ON C.CustomerID = O.CustomerID
+INNER JOIN [Order Details] AS OD
+ON O.OrderID = OD.OrderID
+GROUP BY C.CompanyName, Country
+ORDER BY Ventas DESC
 --13. Número de productos diferentes que nos compra cada cliente.
 --14. Clientes que nos compran más de cinco productos diferentes.
 --15. Vendedores que han vendido una mayor cantidad que la media en US $ en el
