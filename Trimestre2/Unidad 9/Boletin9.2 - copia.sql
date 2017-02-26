@@ -18,7 +18,7 @@ ON O.OrderID = OD.OrderID
 GROUP BY OD.ProductID
 
 --3. N�mero de pa�ses diferentes en los que se vende cada producto.
-SELECT COUNT(DISTINCT O.ShipCountry) AS [Numero de paises diferentes], P.ProductName
+SELECT COUNT(DISTINCT O.ShipCountry) AS [N�mero de pa�ses diferentes], P.ProductName
 FROM Orders AS O
 INNER JOIN [Order Details] AS OD
 ON O.OrderID = OD.OrderID
@@ -36,10 +36,11 @@ INNER JOIN [Order Details] AS OD
 ON O.OrderID = OD.OrderID
 INNER JOIN Products AS P
 ON OD.ProductID = P.ProductID
-WHERE P.ProductName in ('Gudbrandsdalsost','Lakkalikööri','Tourtière','Boston Crab Meat')
+WHERE P.ProductName IN ('Gudbrandsdalsost', 'Lakkalik��ri', 'Tourti�re', 'Boston Crab Meat' )
+
 
 --5. Empleados que no han vendido nunca �Chartreuse verte� ni �Ravioli Angelo�.
-SELECT DISTINCT E.FirstName, E.LastName
+SELECT DISTINCT E.FirstName, E.LastName, P.ProductName
 FROM Employees AS E
 INNER JOIN Orders AS O
 ON E.EmployeeID = O.EmployeeID
