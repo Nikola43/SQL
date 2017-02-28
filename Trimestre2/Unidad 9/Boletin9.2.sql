@@ -123,7 +123,18 @@ INNER JOIN Products AS P
 ON OD.ProductID = P.ProductID
 GROUP BY C.CustomerID, C.ContactName
 
---14. Clientes que nos compran m�s de cinco productos diferentes.
+--14. Clientes que nos compran mas de cinco productos diferentes.
+SELECT COUNT(P.ProductID) AS Productos,  C.ContactName
+FROM Customers AS C
+INNER JOIN Orders AS O
+ON C.CustomerID = O.CustomerID
+INNER JOIN [Order Details] AS OD
+ON O.OrderID = OD.OrderID
+INNER JOIN Products AS P
+ON OD.ProductID = P.ProductID
+GROUP BY C.CustomerID, C.ContactName
+HAVING count(P.ProductName)>5
+
 --15. Vendedores que han vendido una mayor cantidad que la media en US $ en el año 97.
 --16. Empleados que hayan aumentado su cifra de ventas m�s de un 10% entre dos
 --a�os consecutivos, indicando el a�o en que se produjo el aumento.
