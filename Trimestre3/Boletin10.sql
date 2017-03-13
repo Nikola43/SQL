@@ -28,8 +28,8 @@ SELECT * FROM calcularNumeroEstacionesCadaTren(@fechaInicio, @fechaFin)
 GO
 -----------------------------------------------------------------------------------------------
 
--- 2. Crea una función inline que nos devuelva el número de veces que cada usuario ha entrado en el metro
--- en un periodo de tiempo. El principio y el fin de ese periodo se pasarán como parámetros
+-- 2. Crea una función inline que nos devuelva el número de veces que cada usuario ha entrado
+-- en el metro en un periodo de tiempo. El principio y el fin de ese periodo se pasarán como parámetros
 GO
 CREATE FUNCTION calcularNumeroVecesPasajeroEntroEnMetro (@inicio DATETIME, @fin DATETIME)
 RETURNS TABLE AS
@@ -65,9 +65,9 @@ RETURN
     SELECT COUNT(R.Momento) AS NumeroVeces, E.ID, E.Denominacion, E.Direccion
     FROM LM_Trenes AS T
         INNER JOIN LM_Recorridos AS R
-            ON T.ID = R.Tren
+          ON T.ID = R.Tren
         INNER JOIN LM_Estaciones AS E
-            ON R.estacion = E.ID
+          ON R.estacion = E.ID
     WHERE T.Matricula = @matricula AND R.Momento BETWEEN @inicio AND @fin
     GROUP BY E.ID, E.Denominacion, E.Direccion
 )
@@ -91,5 +91,35 @@ GO
 -- periodo de tiempo. Se considera que alguien ha pasado por una estación si ha entrado o salido del metro
 -- por ella. El principio y el fin de ese periodo se pasarán como parámetros
 
--- 5. Crea una función inline que nos devuelva los kilómetros que ha recorrido cada tren en un periodo de tiempo.El principio y el fin de ese periodo se pasarán como parámetros
+-- 5. Crea una función inline que nos devuelva los kilómetros que ha recorrido cada tren en un periodo de tiempo.
+-- El principio y el fin de ese periodo se pasarán como parámetros
+GO
+CREATE FUNCTION calcularKilometrosRecorridosPorCadaTren (@inicio DateTime, @fin DateTime)
+RETURNS TABLE AS
+RETURN
+(
+    SELECT T.ID, I.Distancia
+    FROM LM_Trenes AS T
+    INNER JOIN LM_Recorridos AS R
+      ON T.ID = R.Tren
+    INNER JOIN LM_Lineas AS L
+      ON R.Linea = L.ID
+    INNER JOIN LM_Itinerarios AS I
+      ON L.ID = I.Linea
+    WHERE DAY(R.Momento) BETWEEN @inicio AND @fin
+    GROUP BY T.ID, DAY(R.Momento)
+    ORDER BY T.ID, DAY(R.Momento)
+)
+GO
+
+-- Creamos las variables con los tipos correspondientes
+DECLARE @fechaInicio DATETIME
+DECLARE @fechaFin DATETIME
+
+-- Asignamos valor a las variables
+SET @fechaInicio = '2017-02-27'
+SET @fechaFin = '2017-02-28'
+
+SELECT * FROM calcularKilometrosRecorridosPorCadaTren (@fechaInicio, @fechaFin)
+GO
 
