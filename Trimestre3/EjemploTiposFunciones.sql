@@ -12,7 +12,7 @@ CREATE FUNCTION dbo.calcularNumeroEstacionesRecorridasPorCadaTren (@inicio DateT
 RETURNS TABLE AS
 RETURN 
 (
-	  SELECT COUNT(estacion) AS [Numero de estaciones recorridas], Tren
+	SELECT COUNT(estacion) AS [Numero de estaciones recorridas], Tren
     FROM LM_Recorridos
     WHERE Momento BETWEEN @inicio AND @fin
     GROUP BY Tren
@@ -76,3 +76,33 @@ GO
 -- Ejecutamos el  procedimiento con la instruccion EXEC
 EXEC dbo.mostrarNumeroVecesCadaUsuarioSubioAlMetroEnFebrero
 -----------------------------------------------------------------------------------------------------------------
+GO
+ALTER FUNCTION devolverTablaConDatosDelPasajero (@idPasajero Int)
+RETURNS @nombreTabla TABLE
+(
+    ID int PRIMARY KEY NOT NULL,
+    Nombre nvarchar(20) NULL,
+    Apellidos nvarchar(30) NULL
+) AS
+BEGIN
+    DECLARE
+        @ID int,
+        @Nombre varchar(20),
+        @Apellidos varchar(30)
+    SELECT
+        @ID = @idPasajero,
+        @Nombre = P.Nombre,
+        @Apellidos = P.Apellidos
+    FROM LM_Pasajeros AS P
+    WHERE P.ID = @idPasajero
+RETURN
+END
+GO
+
+DECLARE @idPasajeroQueBuscamos int
+SET @idPasajeroQueBuscamos = 3
+
+SELECT * FROM devolverTablaConDatosDelPasajero(@idPasajeroQueBuscamos)
+GO
+
+SELECT * FROM LM_Pasajeros
