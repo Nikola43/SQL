@@ -76,6 +76,7 @@ GO
 -- Ejecutamos el  procedimiento con la instruccion EXEC
 EXEC dbo.mostrarNumeroVecesCadaUsuarioSubioAlMetroEnFebrero
 -----------------------------------------------------------------------------------------------------------------
+-------------------------------------------  -----------------------------------------------
 GO
 ALTER FUNCTION devolverTablaConDatosDelPasajero (@idPasajero Int)
 RETURNS @nombreTabla TABLE
@@ -104,5 +105,7 @@ SET @idPasajeroQueBuscamos = 3
 
 SELECT * FROM devolverTablaConDatosDelPasajero(@idPasajeroQueBuscamos)
 GO
+-----------------------------------------------------------------------------------------------------------------
 
 SELECT * FROM LM_Pasajeros
+WHERE ID = 3
