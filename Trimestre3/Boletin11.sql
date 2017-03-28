@@ -32,7 +32,14 @@ SELECT * FROM Products
       el Precio unitario, el número total de unidades vendidas y el total de dinero facturado con ese producto.
       Si no existe, créala*/
 
-    SELECT dbo.comprobarSiTablaExiste('Products')
+    IF (SELECT dbo.comprobarSiTablaExiste('Productsdfdfdfs') = 1)
+        BEGIN
+            PRINT 'existe'
+        END
+    ELSE
+        BEGIN
+            PRINT 'No existe'
+        END
 
 /* 3. Comprueba si existe una tabla llamada ShipShip. Esta tabla ha de tener de cada Transportista el ID,
       el Nombre de la compañía, el número total de envíos que ha efectuado y el número de países diferentes
