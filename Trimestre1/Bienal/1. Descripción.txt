@@ -1,0 +1,13 @@
+Queremos desarrollar un sistema de información para gestionar los sistemas de información de la Bienal de arte Flamenco de Sevilla.
+
+La bienal tiene trabajadores contratados. Deseamos almacenar y mantener los datos de estos trabajadores. Además de sus datos personales y profesionales tendremos el tipo de trabajo que hacen (técnico, organizador, relaciones públicas, seguridad, transportista, etc). Algunos trabajadores son contratados directamente por la bienal y otros a través de otras empresas, cuyos datos también nos interesan (CIF, nombre, dirección, etc).
+
+La bienal organiza una serie de espectáculos, en los que participan artistas de varios tipos: cantaores, tocaores, bailaores, músicos de acompañamiento, actores, etc. Los datos de estos artistas serán mantenidos por el sistema. Algunos de estos artistas tienen representantes, cuyos datos también nos interesan. Algunos representantes trabajan para más de un artista.
+
+Estos espectáculos tienen lugar en una serie de espacios: teatros, auditorios, etc. De estos espacios almacena­remos su nombre, dirección, aforo, tipo (espacio abierto, teatro), etc. El sistema permitirá dar de alta estos espacios y mantener sus datos. Además el sistema deberá almacenar el día y la hora a la que se desarrolla el espectáculo. Algunos espectáculos se repiten más de una vez, siempre en el mismo lugar. Algunos espacios son ocupados por distintos espectáculos.
+
+Para los espectáculos se venderán entradas. Hay recintos que tienen localidades numeradas y otros que no. En el segundo caso se venden entradas hasta completar el aforo. En el caso de las localidades numeradas, debemos tener almacenadas las zonas o áreas en que se divide el recinto (patio, anfiteatro, etc). En cada una de estas zonas habrá un número determinado de filas, que puede variar de unas zonas a otras. Las filas tendrán cada una un número determinado de butacas, que puede ser diferente de unas a otras. Una localidad contendrá el espectáculo, recinto, día, hora, zona, fila y número de asiento para que no haya dudas.
+
+La organización puede reservar determinadas localidades en algunos espectáculos para invitaciones a los patrocinadores, autoridades, artistas o críticos. Estas localidades no deben ponerse a la venta.
+
+Todos los espectáculos tienen asignado un responsable que se encarga de coordinar su organización. Puede haber más trabajadores asignados al mismo espectáculo cumpliendo una determinada tarea (transporte, suministros, atención a los artistas, relaciones con la prensa).
