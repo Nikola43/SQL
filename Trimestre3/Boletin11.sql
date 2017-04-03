@@ -32,7 +32,10 @@ SELECT * FROM Products
       el Precio unitario, el número total de unidades vendidas y el total de dinero facturado con ese producto.
       Si no existe, créala*/
 
-    IF (SELECT dbo.comprobarSiTablaExiste('Productsdfdfdfs') = 1)
+    DECLARE @nombreTabla NVARCHAR(20)
+    SET @nombreTabla = 'ProductSale';
+
+    IF ((SELECT dbo.comprobarSiTablaExiste(@nombreTabla)) = 1)
         BEGIN
             PRINT 'existe'
         END
@@ -44,6 +47,14 @@ SELECT * FROM Products
 /* 3. Comprueba si existe una tabla llamada ShipShip. Esta tabla ha de tener de cada Transportista el ID,
       el Nombre de la compañía, el número total de envíos que ha efectuado y el número de países diferentes
       a los que ha llevado cosas. Si no existe, créala */
+      IF ((SELECT dbo.comprobarSiTablaExiste('ShipShip')) = '1')
+          BEGIN
+              PRINT 'existe'
+          END
+      ELSE
+          BEGIN
+              PRINT 'No existe'
+          END
 
 /* 4. Comprueba si existe una tabla llamada EmployeeSales. Esta tabla ha de tener de cada empleado su ID,
       el Nombre completo, el número de ventas totales que ha realizado, el número de clientes diferentes a los
@@ -60,14 +71,29 @@ SELECT * FROM Products
 */
 
 GO
-CREATE FUNCTION dbo.comprobarSiTablaExiste(@nombreTabla NVARCHAR(20))
-    RETURNS Bit
+ALTER FUNCTION dbo.comprobarSiTablaExiste(@nombreTabla NVARCHAR(20))
+    RETURNS BIT
     BEGIN
-        DECLARE @existe Bit
+        DECLARE @existe BIT
+        SET @existe = 0;
+
         IF OBJECT_ID (@nombreTabla) IS NOT NULL
             SET @existe = 1;
-        ELSE
-            SET @existe = 0;
+
         RETURN @existe
     END
 GO
+
+SELECT dbo.comprobarSiTablaExiste('Employees')
+
+GO
+      IF ( (dbo.comprobarSiTablaExiste('Employees')) = 1)
+          BEGIN
+              PRINT 'existe'
+
+          END
+      ELSE
+          BEGIN
+              PRINT 'No existe'
+
+          END
