@@ -16,8 +16,7 @@
 --fechaEntrega 		  smalldatetime  Eso                                 Sí
 
 --1. Crea un función fn_VolumenPaquete que reciba el código de un paquete y nos devuelva
---su volumen. El volumen se expresa en litros (dm3
---) y será de tipo decimal(6,2).
+--su volumen. El volumen se expresa en litros (dm3) y será de tipo decimal(6,2).
 
 --2. Los paquetes normales han de envolverse. Se calcula que la cantidad de papel necesaria
 --para envolver el paquete es 1,8 veces su superficie. Crea una función fn_PapelEnvolver
