@@ -27,6 +27,32 @@ ROLLBACK TRANSACTION
 --Ejercicio 2
 --Escribe un procedimiento almacenado que reciba como parámetro el ID de un pasajero y devuelva en un parámetro de salida el número de vuelos diferentes que ha tomado ese pasajero.
 
+
+GO
+ALTER PROCEDURE getNumeroVuelosDiferentesPasajero
+	@idPasajero char(9),
+	@numeroVuelos INT OUTPUT
+AS
+BEGIN
+	SELECT @numeroVuelos = COUNT(V.Codigo) 
+	FROM AL_Vuelos AS V
+	INNER JOIN AL_Tarjetas AS T
+	ON V.Codigo = T.Codigo_Vuelo
+	INNER JOIN AL_Pasajes AS P
+	ON T.Numero_Pasaje = P.Numero
+	INNER JOIN AL_Pasajeros AS PA
+	ON P.ID_Pasajero = PA.ID
+	WHERE @idPasajero = PA.ID
+	RETURN
+END
+
+DECLARE @numeroVuelosPorPasajero char(9)
+EXEC getNumeroVuelosDiferentesPasajero 'A007', @numeroVuelosPorPasajero OUTPUT
+PRINT 'Numero vuelos: '+@numeroVuelosPorPasajero
+GO
+
+SELECT * FROM AL_Pasajeros
+
 --Ejercicio 3
 --Escribe un procedimiento almacenado que reciba como parámetro el ID de un pasajero y dos fechas y nos devuelva en otro parámetro (de salida) el número de horas que ese pasajero ha volado durante ese intervalo de fechas.
 
