@@ -66,11 +66,11 @@ SELECT * FROM Products
             IF OBJECT_ID (@nombreTabla) IS NOT NULL
                 BEGIN
                     PRINT 'La tabla: '+@nombreTabla+' fue creada correctamente.'
+                    SELECT * FROM ProductSales
                 END
             ELSE
                 BEGIN
                     PRINT 'La tabla: '+@nombreTabla+' no pudo crearse correctamente.'
-                    SELECT * FROM ProductSales
                 END
         END
 
@@ -173,61 +173,69 @@ SELECT * FROM Products
 */
 
 
+BEGIN TRANSACTION
 
  UPDATE Products
  SET unitPrice =
  CASE
-    -- cuando las ventas del 97 son negativas
-    WHEN ventas9697 < 0
-		    THEN (UnitPrice-(UnitPrice*0.10))   -- entonces actualizamos su precio en un 10% menos
+    -- Cuando diferencia de ventas sea negativa
+    WHEN diferenciaVentasEntre9697.Diferencia < 0
+		    THEN (UnitPrice-(UnitPrice*0.10))   -- Establecemos su precio en un -10% menos
 
-    -- cuando las ventas del 97 son entre el 0 y 10%
-	  WHEN ventas9697 >= 0 AND ventas9697<(Vendido96*0.10)
-		    THEN (UnitPrice = UnitPrice)	    -- entonces actualizamos su precio en un 10% menos
+    -- Cuando diferencia de ventas sea entre 0  y 10%
+	  WHEN diferenciaVentasEntre9697.Diferencia >= 0 AND diferenciaVentasEntre9697.Diferencia <= (Ventas96.CantidadVendida * 0.10)
+		    THEN (UnitPrice + 0)	     -- No varia
 
-	  WHEN ventas9697>=(Vendido96*0.10) AND ventas9697<(vendido96*0.50)
-	      THEN (UnitPrice*1.05)
+    -- Cuando diferencia de ventas sea entre 10% y 50%
+	  WHEN diferenciaVentasEntre9697.Diferencia >= (Ventas96.CantidadVendida * 0.10) AND diferenciaVentasEntre9697.Diferencia < (Ventas96.CantidadVendida * 0.50)
+	      THEN (UnitPrice*1.05)              -- Establecemos su precio en un 5% mas
 
-	WHEN ventas9697>=(Vendido96*0.50)
-    THEN
-		    CASE
-			      WHEN (UnitPrice*0.10)<2.25
-                THEN (UnitPrice+ (UnitPrice*0.10))
-			      ELSE
-			          (UnitPrice+ 2.25)
-			  END
+     -- Cuando diferencia de ventas sea mayor del 50%
+    WHEN diferenciaVentasEntre9697.Diferencia >= (Ventas96.CantidadVendida * 0.50)
+        THEN
+            CASE
+                WHEN (UnitPrice*0.10)<2.25
+                    THEN (UnitPrice+ (UnitPrice*0.10))
+                ELSE
+                    (UnitPrice+ 2.25)
+            END
  END
-	from ventasEntre9697
+ FROM Products
 
+ --COMMIT
+ --ROLLBACK
 
-SELECT * FROM VentasEntre9697
-
+ GO
  -- Vista diferencia 9697
  ALTER VIEW diferenciaVentasEntre9697 AS
- SELECT  OD.ProductID, (SUM(V97.cantidadVendida)-SUM(V96.cantidadVendida)) as ventas9697
+ SELECT  OD.ProductID, (V97.cantidadVendida - V96.cantidadVendida) AS Diferencia
  FROM [Order Details] AS OD
  INNER JOIN Ventas96 AS V96
    ON V96.ProductID= OD.ProductID
  INNER JOIN Ventas97 AS V97
    ON	V97.ProductID = OD.ProductID
- GROUP BY OD.ProductID
+ GROUP BY OD.ProductID, V96.CantidadVendida, V97.CantidadVendida
+GO
 
 -- Vista 96
-ALTER VIEW Ventas96 AS
-SELECT ProductId,(Quantity) AS CantidadVendida
+CREATE VIEW Ventas96 AS
+SELECT OD.ProductID, SUM(OD.Quantity) AS CantidadVendida
 FROM Orders AS O
 INNER JOIN [Order Details] AS OD
 ON O.OrderID = OD.OrderID
-WHERE YEAR(OrderDate) = 1996
+WHERE YEAR(O.OrderDate) = 1996
+GROUP BY OD.ProductID
+GO
 
 -- Vista 97
-ALTER VIEW Ventas97 AS
-SELECT ProductId,(Quantity) AS CantidadVendida
+CREATE VIEW Ventas97 AS
+SELECT OD.ProductID, SUM(OD.Quantity) AS CantidadVendida
 FROM Orders AS O
 INNER JOIN [Order Details] AS OD
 ON O.OrderID = OD.OrderID
-WHERE YEAR(OrderDate) = 1997
-
+WHERE YEAR(O.OrderDate) = 1997
+GROUP BY OD.ProductID
+GO
 
 SELECT * FROM Ventas97
 SELECT * FROM Ventas96

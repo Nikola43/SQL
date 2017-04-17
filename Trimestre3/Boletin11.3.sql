@@ -7,13 +7,13 @@
 
 --La estructura de la tabla TL_PaquetesNormales es: 
 
---Columna             tipo           Comentario                          nulos
+--Columna                 tipo           Comentario                          nulos
 --codigo 		          int            Es la clave                         No
---alto				        int                                                No
---ancho 			        int                                                No
---largo 			        int                                                No
---codigoFregoneta 	  int            FK del vehiculo que lo entrega      Sí
---fechaEntrega 		  smalldatetime  Eso                                 Sí
+--alto				      int                                                No
+--ancho 			      int                                                No
+--largo 			      int                                                No
+--codigoFregoneta 	      int            FK del vehiculo que lo entrega      Sí
+--fechaEntrega 		      smalldatetime                                      Sí
 
 --1. Crea un función fn_VolumenPaquete que reciba el código de un paquete y nos devuelva
 --su volumen. El volumen se expresa en litros (dm3) y será de tipo decimal(6,2).
