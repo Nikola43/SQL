@@ -33,7 +33,7 @@ SELECT * FROM Products
       Si no existe, créala*/
 
     DECLARE @nombreTabla NVARCHAR(20)
-    SET @nombreTabla = 'ProductSales';
+    SET @nombreTabla = 'ProductSa';
 
     IF OBJECT_ID (@nombreTabla) IS NOT NULL
         BEGIN
@@ -43,8 +43,9 @@ SELECT * FROM Products
         BEGIN
             PRINT 'La tabla: '+@nombreTabla+' no existe, procederemos a crearla.'
 
-            CREATE TABLE ProductSales
-            (
+            DECLARE @temp VarChar(1000)
+
+            SET @temp = 'CREATE TABLE ' + @nombreTabla +' (
                 -- Columnas
                 ProductID INT NOT NULL CONSTRAINT FK_ProductID FOREIGN KEY REFERENCES Products(ProductID)
                 ON DELETE CASCADE ON UPDATE CASCADE,
@@ -52,8 +53,14 @@ SELECT * FROM Products
                 UnitPrice money NULL,
                 [Unidades vendidas] int NULL,
                 [Total facturado] money NULL
-            )
+            )'
 
+
+            EXECUTE (@temp)
+
+            
+            
+			/*
             -- Insertamos los datos
             INSERT INTO ProductSales
             SELECT P.ProductID, P.ProductName, P.UnitPrice, SUM(OD.Quantity) AS [Unidades vendidas], P.UnitPrice*SUM(OD.Quantity) AS [Total facturado]
@@ -61,6 +68,7 @@ SELECT * FROM Products
             INNER JOIN [Order Details] AS OD
             ON P.ProductID = OD.ProductID
             GROUP BY P.ProductID,P.ProductName,P.UnitPrice
+			
 
             -- Comprobamos si la tabla fue creada correctamente
             IF OBJECT_ID (@nombreTabla) IS NOT NULL
@@ -72,7 +80,10 @@ SELECT * FROM Products
                 BEGIN
                     PRINT 'La tabla: '+@nombreTabla+' no pudo crearse correctamente.'
                 END
+			*/
         END
+
+
 
 /* 3. Comprueba si existe una tabla llamada ShipShip. Esta tabla ha de tener de cada Transportista el ID,
       el Nombre de la compañía, el número total de envíos que ha efectuado y el número de países diferentes
