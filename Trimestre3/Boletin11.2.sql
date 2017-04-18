@@ -26,7 +26,8 @@ ROLLBACK TRANSACTION
 --Recibirá como parámetros el ID del pasaje.
 
 --Ejercicio 2
---Escribe un procedimiento almacenado que reciba como parámetro el ID de un pasajero y devuelva en un parámetro de salida el número de vuelos diferentes que ha tomado ese pasajero.
+--Escribe un procedimiento almacenado que reciba como parámetro el ID de un pasajero
+-- y devuelva en un parámetro de salida el número de vuelos diferentes que ha tomado ese pasajero.
 
 GO
 CREATE PROCEDURE getNumeroVuelosDiferentesPasajero
@@ -177,7 +178,52 @@ SELECT * FROM AL_Vuelos
 --No se generarán nuevas tarjetas de embarque. El vuelo a cancelar y el sustituto se pasarán como parámetros. 
 --Si no se pasa el vuelo sustituto, se buscará el primer vuelo inmediatamente posterior al cancelado que realice
 --el mismo recorrido.
+GO
+ALTER PROCEDURE cancelarYReubicarPasajeros 
+	@codigoVuelo int
+AS
+BEGIN 
+	DECLARE @asientosLibresVueloSustituto int
+	DECLARE @aeroPuertoSalida char(3)
+	DECLARE @aeroPuertoLlegada char(3)
+	DECLARE @CapacidadAvion int 
+
+	-- Ver aueropuerto de salida y llegada
+	SELECT @aeroPuertoSalida = Aeropuerto_Salida, @aeroPuertoLlegada = Aeropuerto_Llegada 
+	FROM AL_Vuelos
+	WHERE @codigoVuelo = Codigo
+
+	-- Comprobar que vuelos hacen el mismo recorrido
+	SELECT * FROM AL_Vuelos
+	WHERE Aeropuerto_Salida = @aeroPuertoSalida AND Aeropuerto_Llegada = @aeroPuertoLlegada
+
+	-- Comprobamos asientos libres en el vuelo
+	SELECT @asientosLibresVueloSustituto = Filas*Asientos_x_Fila 
+	FROM AL_Aviones AS A
+	INNER JOIN AL_Vuelos AS V ON A.Matricula = V.Matricula_Avion
+	WHERE @codigoVuelo = V.Codigo 
+
+	-- Comprobamos capacidad del avion
+	SELECT @CapacidadAvion = Filas*Asientos_x_Fila FROM AL_Aviones AS A
+	INNER JOIN AL_Vuelos AS V ON A.Matricula = V.Matricula_Avion
+	WHERE @codigoVuelo = V.Codigo 
+
+	
+
+	RETURN
+END
+GO
+
+GO
+EXEC cancelarYReubicarPasajeros 3
+GO
+
+SELECT * FROM AL_Vuelos
 
 --Ejercicio 6
---Escribe un procedimiento al que se pase como parámetros un código de un avión y un momento (dato fecha-hora) y nos escriba un mensaje que indique dónde se encontraba ese avión en ese momento. El mensaje puede ser "En vuelo entre los aeropuertos de NombreAeropuertoSalida y NombreaeropuertoLlegada” si el avión estaba volando en ese momento, o "En tierra en el aeropuerto NombreAeropuerto” si no está volando. Para saber en qué aeropuerto se encuentra el avión debemos consultar el último vuelo que realizó antes del momento indicado.
---Si se omite el segundo parámetro, se tomará el momento actual.
+--Escribe un procedimiento al que se pase como parámetros un código de un avión y un momento (dato fecha-hora)
+--y nos escriba un mensaje que indique dónde se encontraba ese avión en ese momento. 
+--El mensaje puede ser "En vuelo entre los aeropuertos de NombreAeropuertoSalida y NombreaeropuertoLlegada” 
+--si el avión estaba volando en ese momento, o "En tierra en el aeropuerto NombreAeropuerto” si no está volando. 
+--Para saber en qué aeropuerto se encuentra el avión debemos consultar el último vuelo que realizó antes 
+--del momento indicado. Si se omite el segundo parámetro, se tomará el momento actual.
