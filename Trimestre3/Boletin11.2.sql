@@ -178,9 +178,19 @@ SELECT * FROM AL_Vuelos
 --No se generarán nuevas tarjetas de embarque. El vuelo a cancelar y el sustituto se pasarán como parámetros. 
 --Si no se pasa el vuelo sustituto, se buscará el primer vuelo inmediatamente posterior al cancelado que realice
 --el mismo recorrido.
+
+	-- 1. comprobar vuelos que hacen mismo recorrido
+	-- 2. comprobar asientos ocupados en el vuelo que cancelamos
+	-- 3. comprobar asientos libres en el vuelo sustituto
+	-- 4. Comprobar si caben
+	-- 5. insert sleect en pasajes y en vuelo_pasajes
+	-- 6. borrar de pasajes
+	-- 7. borrar de vuelo_pasajes
+
 GO
 ALTER PROCEDURE cancelarYReubicarPasajeros 
-	@codigoVuelo int
+	@codigoVuelo int,
+	@codigoVueloSustituto int = NULL
 AS
 BEGIN 
 	DECLARE @asientosLibresVueloSustituto int
@@ -188,12 +198,12 @@ BEGIN
 	DECLARE @aeroPuertoLlegada char(3)
 	DECLARE @CapacidadAvion int 
 
-	-- Ver aueropuerto de salida y llegada
+	-- Ver aeropuerto de salida y llegada
 	SELECT @aeroPuertoSalida = Aeropuerto_Salida, @aeroPuertoLlegada = Aeropuerto_Llegada 
 	FROM AL_Vuelos
 	WHERE @codigoVuelo = Codigo
 
-	-- Comprobar que vuelos hacen el mismo recorrido
+	--Comprobar que vuelos hacen el mismo recorrido
 	SELECT * FROM AL_Vuelos
 	WHERE Aeropuerto_Salida = @aeroPuertoSalida AND Aeropuerto_Llegada = @aeroPuertoLlegada
 
@@ -208,14 +218,18 @@ BEGIN
 	INNER JOIN AL_Vuelos AS V ON A.Matricula = V.Matricula_Avion
 	WHERE @codigoVuelo = V.Codigo 
 
-	
+
+
 
 	RETURN
 END
 GO
 
-GO
-EXEC cancelarYReubicarPasajeros 3
+DECLARE @VueloSustituto char(3)
+SET @VueloSustituto = NULL
+
+
+EXEC cancelarYReubicarPasajeros 7, @VueloSustituto
 GO
 
 SELECT * FROM AL_Vuelos
