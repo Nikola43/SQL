@@ -7,13 +7,13 @@ USE AirLeo
 --Escribe un procedimiento que cancele un pasaje y las tarjetas de embarque asociadas.
 
 GO
-ALTER PROCEDURE cancelarPasaje @idPasaje int
+CREATE PROCEDURE cancelarPasaje @idPasaje int
 AS
 BEGIN
 	BEGIN TRANSACTION
 	DELETE AL_Tarjetas       WHERE Numero_Pasaje = @idPasaje
 	DELETE AL_Vuelos_Pasajes WHERE Numero_Pasaje = @idPasaje
-	DELETE AL_Pasajes        WHERE Numero	    	 = @idPasaje
+	DELETE AL_Pasajes        WHERE Numero	     = @idPasaje
 	COMMIT TRANSACTION
 END
 GO
@@ -23,6 +23,7 @@ EXEC cancelarPasaje 8
 COMMIT TRANSACTION
 ROLLBACK TRANSACTION
 
+SELECT * Pasa
 --Recibirá como parámetros el ID del pasaje.
 
 --Ejercicio 2
@@ -66,7 +67,7 @@ ALTER PROCEDURE getNumeroHorasDeVueloPorPasajero
 	@numeroHoras  INT OUTPUT
 AS
 BEGIN
-	SELECT @numeroHoras = SUM(DATEDIFF(HOUR,V.Salida, V.Llegada)) 
+	SELECT @numeroHoras = (SUM(DATEDIFF(MINUTE,V.Salida, V.Llegada)) / 60) 
 	FROM AL_Vuelos AS V
 	INNER JOIN AL_Tarjetas AS T
 	ON V.Codigo = T.Codigo_Vuelo

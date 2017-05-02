@@ -106,25 +106,130 @@ GO
 --esas fechas.
 
 -------------------------------------------------------------------------------------------------
+USE AirLeo
+set dateformat ymd
+GO
 
 --EJ2
 --1. Diseña una función fn_distancia recorrida a la que se pase un código de avión y un rango
 --de fechas y nos devuelva la distancia total recorrida por ese avión en ese rango de
 --fechas.
+GO
+ALTER FUNCTION dbo.fn_distancia(@matriculaAvion char(10), @inicioRango smalldatetime, @finRango smallDateTime)
+RETURNS FLOAT
+BEGIN
+	DECLARE @distanciaTotal FLOAT
+	SELECT @distanciaTotal = 
+		SUM(D.Distancia)
+		FROM AL_Vuelos AS V
+		INNER JOIN AL_Distancias AS D
+		ON (V.Aeropuerto_Salida = D.Origen AND V.Aeropuerto_Llegada = D.Destino) OR (V.Aeropuerto_Salida = D.Destino AND V.Aeropuerto_Llegada = D.Origen)
+		WHERE Matricula_Avion = @matriculaAvion AND Salida BETWEEN @inicioRango AND @finRango
+	RETURN @distanciaTotal
+END
+GO
+
+DECLARE @matriculaAvion char(10)
+DECLARE @inicioRango smalldatetime
+DECLARE @finRango smalldatetime
+
+SET @matriculaAvion = 'USA5068'
+SET @inicioRango = '2008-01-14 17:30:00'
+SET @finRango = '2008-05-23 18:30:00'
+
+PRINT dbo.fn_distancia(@matriculaAvion, @inicioRango, @finRango)
+GO
 
 --2. Diseña una función fn_horasVuelo a la que se pase un código de avión y un rango de
 --fechas y nos devuelva las horas totales que ha volado ese avión en ese rango de fechas.
+GO
+ALTER FUNCTION dbo.fn_horasVuelo(@matriculaAvion char(10), @inicioRango smalldatetime, @finRango smallDateTime)
+RETURNS FLOAT
+BEGIN
+	DECLARE @distanciaTotal FLOAT
+	SELECT @distanciaTotal = (SUM(DATEDIFF(MINUTE, Salida, Llegada)) / 60)
+	FROM AL_Vuelos
+	WHERE Matricula_Avion = @matriculaAvion AND Salida BETWEEN @inicioRango AND @finRango
+	RETURN @distanciaTotal
+END
+GO
+
+DECLARE @matriculaAvion char(10)
+DECLARE @inicioRango smalldatetime
+DECLARE @finRango smalldatetime
+
+SET @matriculaAvion = 'USA5068'
+SET @inicioRango = '2008-01-14 17:30:00'
+SET @finRango = '2008-05-23 18:30:00'
+
+PRINT dbo.fn_horasVuelo(@matriculaAvion, @inicioRango, @finRango) 
+GO
 
 --3. Diseña una función a la que se pase un código de avión y un rango de fechas y nos
 --devuelva una tabla con los nombres y fechas de todos los aeropuertos en que ha estado
 --el avión en ese intervalo
-GO
-CREATE FUNCTION dbo.devolverMatriculaTren(@codigoAvion Int, )
 
+GO
+ALTER FUNCTION dbo.fn_HistorialAeropuertosAvion(@matriculaAvion char(10), @inicioRango smalldatetime, @finRango smallDateTime)
+RETURNS TABLE AS
+RETURN 
+(
+	SELECT V.Salida ,A.Nombre
+	FROM AL_Vuelos AS V
+	INNER JOIN AL_Aeropuertos AS A
+	ON (V.Aeropuerto_Salida = A.Codigo)
+	WHERE Matricula_Avion = @matriculaAvion AND Salida BETWEEN @inicioRango AND @finRango
+	UNION
+	SELECT V.Llegada ,A.Nombre
+	FROM AL_Vuelos AS V
+	INNER JOIN AL_Aeropuertos AS A
+	ON (V.Aeropuerto_Llegada = A.Codigo)
+	WHERE Matricula_Avion = @matriculaAvion AND Salida BETWEEN @inicioRango AND @finRango
+)
+GO
+
+DECLARE @matriculaAvion char(10)
+DECLARE @inicioRango smalldatetime
+DECLARE @finRango smalldatetime
+
+SET @matriculaAvion = 'USA5068'
+SET @inicioRango = '2008-01-14 17:30:00'
+SET @finRango = '2008-05-23 18:30:00'
+
+SELECT * FROM dbo.fn_HistorialAeropuertosAvion(@matriculaAvion, @inicioRango, @finRango) 
 GO
 
 --4. Diseña una función fn_ViajesCliente que nos devuelva nombre y apellidos, kilómetros
 --recorridos y número de vuelos efectuados por cada cliente en un rango de fechas,
 --ordenado de mayor a menor distancia recorrida.
+GO
+ALTER FUNCTION dbo.fn_ViajesCliente(@idPasajero char(9), @inicioRango smalldatetime, @finRango smallDateTime)
+RETURNS TABLE AS
+RETURN 
+(
+	SELECT PSJROS.Nombre, PSJROS.Apellidos, (SUM(D.Distancia) * 0.062137119 ) AS Distancia, COUNT(V.Codigo) AS NumeroVuelos
+	FROM AL_Pasajeros AS PSJROS
+	INNER JOIN AL_Pasajes AS PSJES
+	ON PSJROS.ID = PSJES.ID_Pasajero
+	INNER JOIN AL_Vuelos_Pasajes AS VP
+	ON PSJES.Numero = VP.Numero_Pasaje
+	INNER JOIN AL_Vuelos AS V
+	ON VP.Codigo_Vuelo = V.Codigo
+	INNER JOIN AL_Distancias AS D
+	ON (V.Aeropuerto_Salida = D.Origen AND V.Aeropuerto_Llegada = D.Destino) OR (V.Aeropuerto_Salida = D.Destino AND V.Aeropuerto_Llegada = D.Origen)
+	WHERE PSJROS.ID = @idPasajero AND Salida BETWEEN @inicioRango AND @finRango
+	GROUP BY PSJROS.Nombre, PSJROS.Apellidos
+)
+GO
 
+DECLARE @idPasajero char(9)
+DECLARE @inicioRango smalldatetime
+DECLARE @finRango smalldatetime
+
+SET @idPasajero = 'A003'
+SET @inicioRango = '2008-01-14 17:30:00'
+SET @finRango = '2008-05-23 18:30:00'
+
+SELECT * FROM dbo.fn_ViajesCliente(@idPasajero, @inicioRango, @finRango) 
+GO
 
