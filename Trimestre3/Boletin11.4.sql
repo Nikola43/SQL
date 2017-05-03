@@ -14,18 +14,14 @@ DECLARE @cantidadRestante float
 GO
 BEGIN TRANSACTION
 
-DECLARE @fechaActual dateTime
-SET @fechaActual = CURRENT_TIMESTAMP
 
-DECLARE @haceDosMeses dateTime
-SET @haceDosMeses = DATETIMEFROMPARTS( DATEPART(YEAR, @fechaActual), DATEPART(MONTH, @fechaActual) - 2,  DATEPART(DAY, @fechaActual),  DATEPART(HOUR, @fechaActual),  DATEPART(MINUTE, @fechaActual),  DATEPART(SECOND, @fechaActual), 0)
 
 UPDATE LM_Tarjetas         -- Actualizamos LM_Tarjetas
 SET Saldo += (-Saldo)  -- Cogemos el saldo negativo, lo convetimos en positivo y se lo sumamos al saldo de la tarjeta
 FROM LM_Tarjetas AS T
 INNER JOIN LM_Recargas AS R
 ON T.ID = R.ID_Tarjeta
-Where Saldo < 0 AND R.Momento_Recarga < @haceDosMeses     -- Cuando tengan el saldo negativo y haya sido recargada al menos una vez en los dos ultimos dos mese
+Where Saldo < 0 AND R.Momento_Recarga > DATEADD(MONTH, -2,  CURRENT_TIMESTAMP)    -- Cuando tengan el saldo negativo y haya sido recargada al menos una vez en los dos ultimos dos mese
 
 ROLLBACK TRANSACTION
 GO
@@ -33,7 +29,7 @@ GO
 
 --Crea un procedimiento RecargarTarjeta que reciba como parámetros el ID de una tarjeta y un importe y actualice el saldo de la tarjeta sumándole dicho importe, además de grabar la correspondiente recarga
 GO
-ALTER PROCEDURE RecargarTarjeta @id_Tarjeta int, @importe smallmoney
+CREATE PROCEDURE RecargarTarjeta @id_Tarjeta int, @importe smallmoney
 AS
 BEGIN
 	BEGIN TRANSACTION
@@ -54,12 +50,16 @@ GO
 
 BEGIN TRANSACTION
 EXEC RecargarTarjeta 8, 5
+COMMIT TRANSACTION
 ROLLBACK TRANSACTION
 
 SELECT * FROM LM_Tarjetas
 WHERE ID = 8
 
-SELECT * FROM LM_Recargas
+SELECT * 
+FROM LM_Recargas
+
+SELECT 
 
 --Ejercicio 2
 

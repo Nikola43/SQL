@@ -203,11 +203,11 @@ GO
 --recorridos y número de vuelos efectuados por cada cliente en un rango de fechas,
 --ordenado de mayor a menor distancia recorrida.
 GO
-ALTER FUNCTION dbo.fn_ViajesCliente(@idPasajero char(9), @inicioRango smalldatetime, @finRango smallDateTime)
+ALTER FUNCTION dbo.fn_ViajesCliente(@inicioRango smalldatetime, @finRango smallDateTime)
 RETURNS TABLE AS
 RETURN 
 (
-	SELECT PSJROS.Nombre, PSJROS.Apellidos, (SUM(D.Distancia) * 0.062137119 ) AS Distancia, COUNT(V.Codigo) AS NumeroVuelos
+	SELECT PSJROS.Nombre, PSJROS.Apellidos, (SUM(D.Distancia) * 0.062137119 ) AS Distancia, COUNT(VP.Numero_Pasaje) AS NumeroVuelos
 	FROM AL_Pasajeros AS PSJROS
 	INNER JOIN AL_Pasajes AS PSJES
 	ON PSJROS.ID = PSJES.ID_Pasajero
@@ -215,21 +215,13 @@ RETURN
 	ON PSJES.Numero = VP.Numero_Pasaje
 	INNER JOIN AL_Vuelos AS V
 	ON VP.Codigo_Vuelo = V.Codigo
-	INNER JOIN AL_Distancias AS D
-	ON (V.Aeropuerto_Salida = D.Origen AND V.Aeropuerto_Llegada = D.Destino) OR (V.Aeropuerto_Salida = D.Destino AND V.Aeropuerto_Llegada = D.Origen)
-	WHERE PSJROS.ID = @idPasajero AND Salida BETWEEN @inicioRango AND @finRango
+	INNER JOIN AL_Distancias AS D On (V.Aeropuerto_Salida = D.Destino AND V.Aeropuerto_Llegada = D.Origen)
+	WHERE Salida BETWEEN @inicioRango AND @finRango
 	GROUP BY PSJROS.Nombre, PSJROS.Apellidos
 )
 GO
 
-DECLARE @idPasajero char(9)
-DECLARE @inicioRango smalldatetime
-DECLARE @finRango smalldatetime
 
-SET @idPasajero = 'A003'
-SET @inicioRango = '2008-01-14 17:30:00'
-SET @finRango = '2008-05-23 18:30:00'
-
-SELECT * FROM dbo.fn_ViajesCliente(@idPasajero, @inicioRango, @finRango) 
+SELECT * FROM dbo.fn_ViajesCliente('2008-01-14 17:30', '2008-05-23 18:30') 
 GO
 
