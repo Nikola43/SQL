@@ -194,7 +194,7 @@ ROLLBACK TRANSACTION
 
 --Ambos premios son excluyentes. Si algún pasajero cumple ambas condiciones se le aplicará la que suponga mayor bonificación de las dos.
 GO
-ALTER PROCEDURE RecargarSaldo @importeN1 smallmoney = 5, @importeN2 smallmoney = 5
+CREATE PROCEDURE RecargarSaldo @importeN1 smallmoney = 5, @importeN2 smallmoney = 5
 AS
 BEGIN
 	DECLARE @inicioMes smallDateTime 
@@ -209,7 +209,7 @@ BEGIN
 	SET @finMes = DATEFROMPARTS(YEAR(@mesAnterior), MONTH(@mesAnterior), 30)
 
 	-- Creamos una tabla temporal donde insertaremos los pasajero que hayan gastado mas de 30 euros en el rango de fechas indicado
-	CREATE TABLE #pasajerosImportesGastados
+	DECLARE @pasajerosImportesGastados TABLE
 	(  
 		ID int,
 		Importe_Viaje smallmoney
@@ -217,7 +217,7 @@ BEGIN
 
 	-- Insertamos los pasajero que hayan gastado mas de 30 euros en el rango de fechas indicado
 	BEGIN TRANSACTION
-	INSERT INTO #pasajerosImportesGastados
+	INSERT INTO @pasajerosImportesGastados
 		SELECT P.ID, SUM(V.Importe_Viaje) AS Importe_Viaje
 		FROM LM_Viajes AS V
 		INNER JOIN LM_Tarjetas AS T
@@ -238,14 +238,14 @@ BEGIN
 			UPDATE LM_Tarjetas
 			SET Saldo += @importeN1
 			FROM LM_Tarjetas AS T
-			INNER JOIN #pasajerosImportesGastados AS P
+			INNER JOIN @pasajerosImportesGastados AS P
 			ON T.IDPasajero = P.ID
 
 			-- Insertamos en recargas
 			INSERT INTO LM_Recargas(ID, ID_Tarjeta, Cantidad_Recarga, Momento_Recarga, SaldoResultante)
 			SELECT NEWID(), T.ID, @importeN1, CURRENT_TIMESTAMP, T.Saldo
 			FROM LM_Tarjetas AS T
-			INNER JOIN #pasajerosImportesGastados AS P
+			INNER JOIN @pasajerosImportesGastados AS P
 			ON T.IDPasajero = P.ID
 			WHERE T.IDPasajero = P.ID
 
@@ -259,14 +259,14 @@ BEGIN
 			UPDATE LM_Tarjetas
 			SET Saldo += 5
 			FROM LM_Tarjetas AS T
-			INNER JOIN #pasajerosImportesGastados AS P
+			INNER JOIN @pasajerosImportesGastados AS P
 			ON T.IDPasajero = P.ID
 
 			-- Insertamos en recargas
 			INSERT INTO LM_Recargas(ID, ID_Tarjeta, Cantidad_Recarga, Momento_Recarga, SaldoResultante)
 			SELECT NEWID(), T.ID, 5, CURRENT_TIMESTAMP, T.Saldo
 			FROM LM_Tarjetas AS T
-			INNER JOIN #pasajerosImportesGastados AS P
+			INNER JOIN @pasajerosImportesGastados AS P
 			ON T.IDPasajero = P.ID
 			WHERE T.IDPasajero = P.ID
 
