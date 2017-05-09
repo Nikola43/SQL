@@ -95,8 +95,8 @@ BEGIN
 				BEGIN
 					BEGIN TRANSACTION
 
-					INSERT INTO LM_Viajes(ID, IDTarjeta, IDEstacionEntrada, IDEstacionSalida, MomentoEntrada, MomentoSalida, Importe_Viaje)
-					VALUES(200, @id_Tarjeta, NULL, NULL, NULL, CURRENT_TIMESTAMP, 2)
+						INSERT INTO LM_Viajes(ID, IDTarjeta, IDEstacionEntrada, IDEstacionSalida, MomentoEntrada, MomentoSalida, Importe_Viaje)
+						VALUES(200, @id_Tarjeta, NULL, NULL, NULL, CURRENT_TIMESTAMP, 2)
 
 					COMMIT TRANSACTION
 				END
@@ -216,8 +216,8 @@ BEGIN
 	)
 
 	-- Insertamos los pasajero que hayan gastado mas de 30 euros en el rango de fechas indicado
-	BEGIN TRANSACTION
-	INSERT INTO @pasajerosImportesGastados
+	--BEGIN TRANSACTION
+		INSERT INTO @pasajerosImportesGastados
 		SELECT P.ID, SUM(V.Importe_Viaje) AS Importe_Viaje
 		FROM LM_Viajes AS V
 		INNER JOIN LM_Tarjetas AS T
@@ -227,51 +227,26 @@ BEGIN
 		WHERE V.MomentoEntrada BETWEEN @inicioMes AND @finMes
 		GROUP BY P.ID
 		HAVING SUM(V.Importe_Viaje) > 30
+	--COMMIT TRANSACTION 
+
+	BEGIN TRANSACTION
+
+		-- Actualizamos el saldo con el valor pasado por parametro
+		UPDATE LM_Tarjetas
+		SET Saldo += @importeN1
+		FROM LM_Tarjetas AS T
+		INNER JOIN @pasajerosImportesGastados AS P
+		ON T.IDPasajero = P.ID
+	
+		-- Insertamos en recargas
+		INSERT INTO LM_Recargas(ID, ID_Tarjeta, Cantidad_Recarga, Momento_Recarga, SaldoResultante)
+		SELECT NEWID(), T.ID, @importeN1, CURRENT_TIMESTAMP, T.Saldo
+		FROM LM_Tarjetas AS T
+		INNER JOIN @pasajerosImportesGastados AS P
+		ON T.IDPasajero = P.ID
+		WHERE T.IDPasajero = P.ID
+
 	COMMIT TRANSACTION
-
-	-- Si se omite el parametro @importeN1
-	IF @importeN1 != 5
-		BEGIN
-			BEGIN TRANSACTION
-
-			-- Actualizamos el saldo con el valor pasado por parametro
-			UPDATE LM_Tarjetas
-			SET Saldo += @importeN1
-			FROM LM_Tarjetas AS T
-			INNER JOIN @pasajerosImportesGastados AS P
-			ON T.IDPasajero = P.ID
-
-			-- Insertamos en recargas
-			INSERT INTO LM_Recargas(ID, ID_Tarjeta, Cantidad_Recarga, Momento_Recarga, SaldoResultante)
-			SELECT NEWID(), T.ID, @importeN1, CURRENT_TIMESTAMP, T.Saldo
-			FROM LM_Tarjetas AS T
-			INNER JOIN @pasajerosImportesGastados AS P
-			ON T.IDPasajero = P.ID
-			WHERE T.IDPasajero = P.ID
-
-			COMMIT TRANSACTION
-		END
-	ELSE
-		BEGIN
-			BEGIN TRANSACTION
-
-			-- Actualizamos el saldo con el valor por defecto del parametro
-			UPDATE LM_Tarjetas
-			SET Saldo += 5
-			FROM LM_Tarjetas AS T
-			INNER JOIN @pasajerosImportesGastados AS P
-			ON T.IDPasajero = P.ID
-
-			-- Insertamos en recargas
-			INSERT INTO LM_Recargas(ID, ID_Tarjeta, Cantidad_Recarga, Momento_Recarga, SaldoResultante)
-			SELECT NEWID(), T.ID, 5, CURRENT_TIMESTAMP, T.Saldo
-			FROM LM_Tarjetas AS T
-			INNER JOIN @pasajerosImportesGastados AS P
-			ON T.IDPasajero = P.ID
-			WHERE T.IDPasajero = P.ID
-
-			COMMIT TRANSACTION
-		END
 END
 GO
 
@@ -283,7 +258,8 @@ ROLLBACK TRANSACTION
 
 --Ejercicio 5
 
---Crea una función que nos devuelva verdadero si es posible que un pasajero haya subido a un tren en un determinado viaje. Se pasará como parámetro el código del viaje y la matrícula del tren.
+--Crea una función que nos devuelva verdadero si es posible que un pasajero haya subido a un tren en un determinado viaje.
+-- Se pasará como parámetro el código del viaje y la matrícula del tren.
 
 --Ejercicio 6
 

@@ -77,7 +77,7 @@ CREATE FUNCTION fn_CuantoPapel(@fechaEntrega Date)
 RETURNS decimal(6,2)
 	BEGIN
 		DECLARE @papelTotal decimal(6,2)
-		SELECT @papelTotal = SUM(Alto * CAST( Largo AS decimal(6,2)) * 1.8)/100
+		SELECT @papelTotal = ((SUM(Alto * CAST( Largo AS decimal(6,2)) + Alto * CAST( Ancho AS decimal(6,2)) + Ancho * CAST( Largo AS decimal(6,2))) * 2) * 1.8)/10000
 		FROM TL_PaquetesNormales 
 		WHERE YEAR(@fechaEntrega) = YEAR(fechaEntrega) AND MONTH(@fechaEntrega) = MONTH(fechaEntrega) AND DAY(@fechaEntrega) = DAY(fechaEntrega)
 		RETURN @papelTotal
