@@ -299,7 +299,7 @@ BEGIN
 	INSERT INTO @Cumplen2Condiciones
 		SELECT ID_Tarjeta 
 		FROM @MasDe30EurosConsumidosUltimoMes 
-		INTERSECT  
+		UNION  
 		SELECT ID_Tarjeta 
 		FROM @MasDe10VecesZonas3y4
 	
