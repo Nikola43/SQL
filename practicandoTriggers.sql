@@ -1,0 +1,37 @@
+--Tabla para pruebas
+--USE Ejemplos
+--GO
+--CREATE TABLE Palabras (
+--ID SmallInt Not Null Identity Constraint PK_Palabras Primary Key
+--,Palabra VarChar(30) Null
+--)
+--Nota: No olvides probar cada trigger con diferentes valores.
+--Iniciación:
+--Sin usar datos modificados
+--1.- Queremos que cada vez que se actualice la tabla Palabras aparezca un mensaje diciendo si
+--se han añadido, borrado o actualizado filas.
+--Pista: Crea tres triggers diferentes
+--2.- Haz un trigger que cada vez que se aumente o disminuya el número de filas de la tabla
+--Palabras nos diga cuántas filas hay.
+
+--Medio:
+--Se usan inserted y deleted. Si es complicado procesar varias filas, supón
+--que se modifica sólo una.
+--3.- Cada vez que se inserte una fila queremos que se muestre un mensaje indicando
+--“Insertada la palabra ________”
+--4.- Cada vez que se inserten filas que nos diga “XX filas insertadas”
+--5.- que no permita introducir palabras repetidas (sin usar UNIQUE).
+--Sobre LeoMetro
+--6.- Comprueba que un pasajero no pueda entrar o salir por la misma estación más de tres
+--veces el mismo día
+--7.- Haz un trigger que al insertar un viaje compruebe que no hay otro viaje simultáneo
+
+--Avanzado:
+--Se incluye la posibilidad de que se modifiquen varias filas y de que haya
+--que consultar otras tablas.
+--8.- Queremos evitar que se introduzcan palabras que terminen en “azo”
+--Sobre LeoFest
+--9.- Cuando se inserte una nueva actuación de una banda hemos de comprobar que la banda
+--no se ha disuelto en esa fecha.
+--10 .- Comprueba mediante un trigger que en una edición no actúan más de tres bandas de la
+--misma categoría. 
