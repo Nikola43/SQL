@@ -76,7 +76,6 @@ WHERE B.NombreBanda = 'Flower Power'
 -- en el año que nos piden y símbolo que indique aumento o disminución.
 -- Puedes hacer otras funciones auxiliares a las que llames, pero no declarar vistas.
 
-
 GO
 ALTER FUNCTION dbo.cancionesCantadasPorAnio( @anio int )
 RETURNS TABLE AS
@@ -100,21 +99,18 @@ ALTER FUNCTION cancionesCantadasFestivales( @anio int )
 RETURNS TABLE AS
 RETURN 
 (
-	
+	SELECT CCAActual.Estilo, CCAActual.NumeroVecesCantada, CCAAnterior.NumeroVecesCantada AS NumeroVecesCantadaAnioAnterior, (CCAActual.NumeroVecesCantada - CCAAnterior.NumeroVecesCantada) AS Diferencia, CASE   
+																																																		        WHEN CCAActual.NumeroVecesCantada > CCAAnterior.NumeroVecesCantada THEN '+' 
+																																																				WHEN CCAActual.NumeroVecesCantada < CCAAnterior.NumeroVecesCantada THEN '-' 
+																																																				WHEN CCAActual.NumeroVecesCantada = CCAAnterior.NumeroVecesCantada THEN '=' 
+																																																			END  AS Resultado 
+	FROM dbo.cancionesCantadasPorAnio(@anio) AS CCAActual
+	INNER JOIN dbo.cancionesCantadasPorAnio(@anio - 1) AS CCAAnterior
+	ON CCAActual.Estilo = CCAAnterior.Estilo
 )
 GO
 
--- Canciones cantadas este ano
-SELECT * FROM dbo.cancionesCantadasPorAnio(2003)
-
--- Canciones del año anterior
-SELECT * FROM dbo.cancionesCantadasPorAnio(2002)
-
--- Diferencia entre un año y otro
-SELECT * FROM dbo.cancionesCantadasPorAnio(2003)
-INTERSECT 
-SELECT * FROM dbo.cancionesCantadasPorAnio(2002)
-
+SELECT * FROM cancionesCantadasFestivales(2017)
 
 
 

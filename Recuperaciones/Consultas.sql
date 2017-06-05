@@ -20,7 +20,7 @@ ON HT.IDTopping = T.ID
 GROUP BY T.ID
 
 --2.Número de veces que se ha pedido cada topping cada año
-SELECT COUNT(T.ID) AS [Veces que se ha pedido], YEAR(P.Recibido) AS AÑO
+SELECT COUNT(T.ID) AS [Veces que se ha pedido], T.Topping, YEAR(P.Recibido) AS AÑO
 FROM ICPedidos AS P
 INNER JOIN ICHelados AS H
 ON P.ID = H.IDPedido
@@ -28,7 +28,8 @@ INNER JOIN ICHeladosToppings AS HT
 ON H.ID = HT.IDHelado
 INNER JOIN ICToppings AS T
 ON HT.IDTopping = T.ID
-GROUP BY YEAR(P.Recibido)
+GROUP BY YEAR(P.Recibido), T.Topping
+ORDER BY YEAR(P.Recibido), T.Topping
 
 --3.Número de veces que se ha pedido cada topping en cada establecimiento
 SELECT COUNT(T.ID) AS [Veces que se ha pedido], P.IDEstablecimiento
@@ -103,6 +104,7 @@ ON P.ID = H.IDPedido
 GROUP BY H.Sabor, E.Denominacion
 ORDER BY COUNT(H.Sabor)
 
+--(falta Fecha)
 --9.Cifra total de ventas de cada establecimiento en cada estación del año. 
 --El invierno va del 21 de diciembre al 21 de marzo, la primavera hasta en 21 de junio, el verano termina el 21 de septiembre.
 SELECT SUM(P.Importe), E.Denominacion
@@ -111,11 +113,65 @@ INNER JOIN ICPedidos AS P
 ON E.ID = P.IDEstablecimiento
 GROUP BY E.Denominacion
 
-
-
+--(falta porcentaje)
 --10.Porcentaje de helados que usan cada tipo de contenedor
---11.Otras cuestiones
+SELECT COUNT(H.ID), H.TipoContenedor
+FROM ICHelados AS H
+GROUP BY H.TipoContenedor
+ORDER BY H.TipoContenedor
 
---12.Añade a la tabla clientes una columna de tipo DECIMAL (3,2) llamada TipoDescuento. No admitirá valores nulos y su valor por defecto es 0.00. El valor de esta columna indicará el tipo de descuento que hacemos a los clientes en sus pedidos en tanto por uno.
---13.Añade una restricción para que el valor de esa columna tenga que estar entre 0 y 0.3
---14.Rellena la columna sumando 0.02 a todos los clientes que hayan hecho más de tres pedidos durante los meses de octubre a febrero.
+--11.Añade a la tabla clientes una columna de tipo DECIMAL (3,2) llamada TipoDescuento.
+-- No admitirá valores nulos y su valor por defecto es 0.00. El valor de esta columna indicará el tipo de descuento
+-- que hacemos a los clientes en sus pedidos en tanto por uno.
+
+BEGIN TRANSACTION
+ALTER TABLE ICClientes
+ADD TipoDescuento DECIMAL (3,2) NOT NULL DEFAULT 0.00
+
+COMMIT TRANSACTION
+--ROLLBACK TRANSACTION
+
+SELECT * FROM ICClientes
+
+--12.Añade una restricción para que el valor de esa columna tenga que estar entre 0 y 0.3
+BEGIN TRANSACTION
+ALTER TABLE ICClientes ADD Constraint CK_ValorDescuento CHECK ( TipoDescuento BETWEEN 0 AND 0.3)
+
+COMMIT TRANSACTION
+--ROLLBACK TRANSACTION
+
+--13.Rellena la columna sumando 0.02 a todos los clientes que hayan hecho más de tres pedidos durante los meses de octubre a febrero.
+GO
+ALTER FUNCTION dbo.calcularNumeroPedidos(@ID_Cliente Int, @inicioRango DATE, @finRango DATE)
+    RETURNS int
+    BEGIN
+        DECLARE @resultado int
+        SET @resultado = 
+		(
+			SELECT COUNT(P.ID) 
+			FROM ICClientes AS C
+			INNER JOIN ICPedidos AS P
+			ON C.ID = P.IDCliente
+			WHERE Recibido BETWEEN @inicioRango AND @finRango
+		)
+        RETURN @resultado
+    END
+GO
+
+
+SELECT * FROM dbo.calcularNumeroPedidos(1,'2017/01/01','2017/01/01')
+SELECT * FROM calcularNumeroPedidos(1,'2017/01/01','2017/01/01')
+
+BEGIN TRANSACTION
+
+UPDATE ICClientes 
+SET TipoDescuento = 0.02
+FROM ICClientes AS C
+INNER JOIN ICPedidos AS P
+ON C.ID = P.IDCliente
+WHERE ( SELECT * FROM calcularNumeroPedidos(C.ID, DATEFROMPARTS(YEAR(Recibido), 01, 10), DATEFROMPARTS(YEAR(Recibido), 02, 28))) > 3
+
+COMMIT TRANSACTION
+--ROLLBACK TRANSACTION
+
+SELECT * FROM ICClientes
