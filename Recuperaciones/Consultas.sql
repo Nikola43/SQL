@@ -152,15 +152,12 @@ ALTER FUNCTION dbo.calcularNumeroPedidos(@ID_Cliente Int, @inicioRango DATE, @fi
 			FROM ICClientes AS C
 			INNER JOIN ICPedidos AS P
 			ON C.ID = P.IDCliente
-			WHERE Recibido BETWEEN @inicioRango AND @finRango
+			WHERE Recibido BETWEEN @inicioRango AND @finRango AND @ID_Cliente = C.ID
 		)
         RETURN @resultado
     END
 GO
 
-
-SELECT * FROM dbo.calcularNumeroPedidos(1,'2017/01/01','2017/01/01')
-SELECT * FROM calcularNumeroPedidos(1,'2017/01/01','2017/01/01')
 
 BEGIN TRANSACTION
 
@@ -169,9 +166,9 @@ SET TipoDescuento = 0.02
 FROM ICClientes AS C
 INNER JOIN ICPedidos AS P
 ON C.ID = P.IDCliente
-WHERE ( SELECT * FROM calcularNumeroPedidos(C.ID, DATEFROMPARTS(YEAR(Recibido), 01, 10), DATEFROMPARTS(YEAR(Recibido), 02, 28))) > 3
+WHERE ( dbo.calcularNumeroPedidos(C.ID, DATEFROMPARTS(YEAR(Recibido), 01, 10), DATEFROMPARTS(YEAR(Recibido), 02, 28))) > 3
 
 COMMIT TRANSACTION
 --ROLLBACK TRANSACTION
 
-SELECT * FROM ICClientes
+SELECT * FROM  ICClientes

@@ -2,11 +2,83 @@
 --Ejercicios actualizaciones
 --Ejercicios sobre la base de datos pubs
 
+USE pubs
+SET DATEFORMAT YMD
+GO
+
 --Actualizaciones
 --1.- Hemos descubierto que Albert Ringer es un pseudónimo utilizado por los hermanos gemelos John y Margaret Sullivan.
+
 -- Queremos crear estos dos autores copiando los datos de Albert Ringer y colocarlos a ambos como autores en todos los libros
--- en que aparezca este último. Estos nombres son los únicos datos que pueden introducirse de forma directa, el resto de datos han
+-- en que aparezca este último. 
+
+--Estos nombres son los únicos datos que pueden introducirse de forma directa, el resto de datos han
 -- de obtenerse de las otras tablas con UPDATE…FROM o INSERT…SELECT
+
+--------------------------   INSERTAMOS DOS NUEVOS AUTORES ----------------------------
+BEGIN TRANSACTION
+
+-- INSERTAMOS A John Sullivan.
+INSERT INTO authors
+SELECT '998-72-3568', 'Sullivan', 'John', phone, address, city, state, zip, contract
+FROM authors 
+WHERE au_fname = 'Albert' AND au_lname = 'Ringer'
+
+-- INSERTAMOS A Margaret Sullivan.
+INSERT INTO authors
+SELECT '998-72-3569', 'Sullivan', 'Margaret', phone, address, city, state, zip, contract
+FROM authors 
+WHERE au_fname = 'Albert' AND au_lname = 'Ringer'
+
+COMMIT TRANSACTION
+-------------------------------------------------------------------------------------------------------
+
+--------------------------   ASIGNAMOS LIBROS A LOS NUEVOS AUTORES CREADOS ----------------------------
+BEGIN TRANSACTION
+
+	UPDATE titleauthor
+	SET au_id = (SELECT au_id
+				 FROM authors
+				 WHERE au_fname = 'John' AND au_lname = 'Sullivan')
+	FROM authors AS A
+	INNER JOIN titleauthor AS TA
+	  ON A.au_id = TA.au_id
+	WHERE au_fname = 'Albert' AND au_lname = 'Ringer'
+
+COMMIT TRANSACTION
+-------------------------------------------------------------------------------------------------------
+
+--------------- INSERTAMOS EN TITLEAUTHOR QUE LOS LIBROS PERTENECEN AL OTRO AUTOR TANBIEN -------------
+BEGIN TRANSACTION
+
+	-- Insertamos en title autor que los libros pertenecen a otro autor tambien
+	INSERT INTO titleauthor
+		SELECT (SELECT au_id
+				 FROM authors
+				 WHERE au_fname = 'Margaret' AND au_lname = 'Sullivan'), TA.title_id, TA.au_ord, TA.royaltyper
+		FROM authors AS A
+		INNER JOIN titleauthor AS TA
+		  ON A.au_id = TA.au_id
+		WHERE au_fname = 'John' AND au_lname = 'Sullivan'
+
+COMMIT TRANSACTION
+-------------------------------------------------------------------------------------------------------
+
+SELECT T.title 
+FROM authors AS A
+INNER JOIN titleauthor AS TS
+  ON A.au_id = TS.au_id
+INNER JOIN titles AS T
+  ON TS.title_id = T.title_id
+WHERE au_fname = 'John' AND au_lname = 'Sullivan'
+
+SELECT T.title 
+FROM authors AS A
+INNER JOIN titleauthor AS TS
+  ON A.au_id = TS.au_id
+INNER JOIN titles AS T
+  ON TS.title_id = T.title_id
+WHERE au_fname = 'Margaret' AND au_lname = 'Sullivan'
 
 --2.- Para afrontar la crisis, hemos decidido bajar un 10% los precios de los libros de los que se hayan vendido menos de 20 ejemplares.
 
