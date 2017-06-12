@@ -10,21 +10,69 @@ GO
 --cuantas veces ha interpretado cada tema en ese rango de fechas. Las columnas serán ID del tema, título, nombre del autor, 
 --nombre del estilo y número de veces que se ha interpretado.ç
 GO
-CREATE FUNCTION dbo.calcularVecesCantadasCadaTema(@nombreBanda varchar(50), @inicio date, @fin date)
+ALTER FUNCTION dbo.calcularVecesCantadasCadaTema(@nombreBanda varchar(50), @inicio date, @fin date)
 RETURNS TABLE AS
 RETURN 
 (
-	SELECT * 
-	FROM LFBandas
+	SELECT TBE.IDTema, T.Titulo, M.Nombre, Est.Estilo, COUNT(TBE.IDTema) AS NumeroDeVeces
+	FROM LFBandas AS B
+	INNER JOIN LFBandasEdiciones AS BE
+	  ON B.ID = BE.IDBanda
+	INNER JOIN LFEdiciones AS E
+	  ON BE.IDFestival = E.IDFestival
+	INNER JOIN LFTemasBandasEdiciones AS TBE
+	  ON E.IDFestival = TBE.IDFestival AND E.Ordinal = TBE.Ordinal
+    INNER JOIN LFTemas AS T
+	  ON TBE.IDTema = T.ID
+    INNER JOIN LFMusicos AS M
+	  ON T.IDAutor = M.ID
+    INNER JOIN LFEstilos AS Est
+	  ON T.IDEstilo = Est.ID
+	WHERE E.FechaHoraInicio BETWEEN @inicio AND @fin AND @nombreBanda = B.NombreBanda
+	GROUP BY TBE.IDTema, T.Titulo, M.Nombre, Est.Estilo
 )
 GO
 
+SELECT * FROM dbo.calcularVecesCantadasCadaTema('Ejecucion hipotecaria','2001-04-20', '2005-04-20')
+
+SELECT * from LFBandas
 --Ejercicio 2
 --Diseña una función que nos devuelva los datos de los músicos que han formado parte de una banda a lo largo de su historia. Las columnas serán Id,
 --nombre artístico, años de antigüedad, meses y días. La antigüedad se calculará mediante la diferencia entre el momento en que el músico entró a
 --formar parte de la banda y cuando la abandonó. Si todavía sigue en la misma, se considerará la antiguedad hasta la fecha actual. 
 --Si un músico ha formado parte de la banda, la ha abndonado y luego ha vuelto se sumará la duración de todos los periodos en los que haya formado
 --parte de la misma. El parámetro de entrada será el nombre de la banda.
+GO
+ALTER FUNCTION dbo.historialBandasMusicos(@nombreBanda varchar(50))
+RETURNS TABLE AS
+RETURN 
+(
+	SELECT M.ID, M.NombreArtistico, DATEDIFF(day,MB.FechaIncorporacion, MB.FechaIncorporacion) AS 'Diferencia'
+	FROM LFMusicos AS M
+	INNER JOIN LFMusicosBandas AS MB
+	  ON M.ID = MB.IDMusico
+	INNER JOIN LFBandas AS B
+	  ON MB.IDBanda = B.ID
+	GROUP BY M.ID, M.NombreArtistico, MB.FechaIncorporacion
+)
+GO
+
+SELECT * FROM dbo.historialBandasMusicos('Ejecucion hipotecaria')
+
+SELECT * FROM LFBandas
+
+SELECT * FROM LFMusicos
+
+
+DECLARE @antiguedad Date
+
+SET @antiguedad = DATEDIFF(day,'2000-01-01', '2000-01-01')
+
+PRINT @antiguedad
+
+SELECT * FROM LFMusicosBandas
+
+SELECT DATEDIFF(day,'2000-01-01', '2000-11-01')
 
 --Ejercicio 3
 --Algunas veces se organizan ediciones "revival" de un festival, en las que se programan las mismas bandas y las mismas canciones que una edición 
@@ -41,4 +89,39 @@ GO
 --Se contarán las interpretaciones, no los temas. Es decir, si un mismo tema se ha interpretado cinco veces contará como cinco, no como uno.
 
 --El dato de entrada será el nombre de la banda y el de salida el índice de fidelidad, con un decimal.
---Última modificación: lunes, 5 de junio de 2017, 22:07
+
+GO
+CREATE FUNCTION dbo.fidelidadEstilosTemas(@nombreBanda varchar(50))
+    RETURNS decimal(6,2)
+    BEGIN
+        DECLARE @resultado decimal(6,2)
+        --SET @resultado = (SELECT Matricula FROM LM_Trenes WHERE ID = @id)
+		SET @resultado = 2.2
+
+		SELECT TBE.IDTema, COUNT(TBE.IDTema)
+		FROM LFBandas AS B
+		INNER JOIN LFBandasEdiciones AS BE
+		  ON B.ID = BE.IDBanda
+		INNER JOIN LFEdiciones AS E
+		  ON BE.IDFestival = E.IDFestival
+		INNER JOIN LFTemasBandasEdiciones AS TBE
+		  ON E.IDFestival = TBE.IDFestival
+		WHERE B.NombreBanda = @nombreBanda
+		GROUP BY TBE.IDTema
+		
+        RETURN @resultado
+    END
+GO
+
+DECLARE @nombreBanda varchar(50) = 'Ejecucion hipotecaria'
+
+SELECT TBE.IDTema, COUNT(TBE.IDTema)
+		FROM LFBandas AS B
+		INNER JOIN LFBandasEdiciones AS BE
+		  ON B.ID = BE.IDBanda
+		INNER JOIN LFEdiciones AS E
+		  ON BE.IDFestival = E.IDFestival
+		INNER JOIN LFTemasBandasEdiciones AS TBE
+		  ON E.IDFestival = TBE.IDFestival
+		WHERE B.NombreBanda = @nombreBanda
+		GROUP BY TBE.IDTema
