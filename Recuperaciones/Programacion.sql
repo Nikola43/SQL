@@ -63,6 +63,8 @@ SELECT * FROM LFBandas
 
 SELECT * FROM LFMusicos
 
+SELECT * FROM LFMusicosBandas
+
 
 DECLARE @antiguedad Date
 
@@ -71,8 +73,19 @@ SET @antiguedad = DATEDIFF(day,'2000-01-01', '2000-01-01')
 PRINT @antiguedad
 
 SELECT * FROM LFMusicosBandas
+ORDER BY IDMusico
 
 SELECT DATEDIFF(day,'2000-01-01', '2000-11-01')
+
+SELECT M.ID, DATEDIFF(day,MB.FechaIncorporacion, MB.FechaIncorporacion) AS 'Diferencia'
+	FROM LFMusicos AS M
+	INNER JOIN LFMusicosBandas AS MB
+	  ON M.ID = MB.IDMusico
+	INNER JOIN LFBandas AS B
+	  ON MB.IDBanda = B.ID
+	WHERE B.NombreBanda = 'Malditos bastardos' AND B.ID = MB.IDBanda
+	GROUP BY M.ID, MB.FechaIncorporacion
+	
 
 --Ejercicio 3
 --Algunas veces se organizan ediciones "revival" de un festival, en las que se programan las mismas bandas y las mismas canciones que una edición 

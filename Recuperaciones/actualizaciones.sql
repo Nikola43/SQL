@@ -82,6 +82,35 @@ WHERE au_fname = 'Margaret' AND au_lname = 'Sullivan'
 
 --2.- Para afrontar la crisis, hemos decidido bajar un 10% los precios de los libros de los que se hayan vendido menos de 20 ejemplares.
 
+-- Libros que se han vendido menos de 20 ejemplares
+BEGIN TRANSACTION
+UPDATE titles
+SET price = price - (price * 0.10)
+FROM titles AS T
+INNER JOIN sales AS S
+  ON T.title_id = S.title_id
+WHERE T.title_id IN (SELECT S.title_id
+				  FROM titles AS T
+				  INNER JOIN sales AS S
+				    ON T.title_id = S.title_id
+				  GROUP BY S.title_id 
+				  HAVING SUM(S.qty) < 20)
+--ROLLBACK
+COMMIT TRANSACTION
+
+-- Comprobamos que los libros ahora valen un 10% menos
+SELECT S.title_id, T.price
+FROM titles AS T
+INNER JOIN sales AS S
+  ON T.title_id = S.title_id
+GROUP BY S.title_id, T.price
+HAVING SUM(S.qty) < 20
+
+
+
+
+
+
 --3.-  Título de cada libro, nombre de la editorial y número de autores
 
 --Programación
