@@ -129,3 +129,21 @@ HAVING SUM(S.qty) < 20
 --reciben los autores de las ventas y depende del libro y del número de ejemplares vendido según la tabla 
 --roysched) y el porcentaje de ese royalty que percibe cada uno de los autores en caso de que haya más de uno.
 -- Este dato se obtiene de la columna royaltyper de la tabla titleauthor
+GO
+CREATE FUNCTION dbo.porcentajeGanaciaAutores( @anio int )
+RETURNS TABLE AS
+RETURN 
+(
+	SELECT au_id, au_lname, au_lname
+)
+GO
+
+
+SELECT au_id
+FROM authors AS A
+INNER JOIN titleauthor AS TA
+  ON A.au_id = TA.au_id
+INNER JOIN titles AS T
+  ON TA.title_id = T.title_id
+INNER JOIN sales AS S
+  ON T.title_id = S.title_id

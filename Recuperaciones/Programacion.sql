@@ -42,57 +42,68 @@ SELECT * from LFBandas
 --formar parte de la banda y cuando la abandonó. Si todavía sigue en la misma, se considerará la antiguedad hasta la fecha actual. 
 --Si un músico ha formado parte de la banda, la ha abndonado y luego ha vuelto se sumará la duración de todos los periodos en los que haya formado
 --parte de la misma. El parámetro de entrada será el nombre de la banda.
-GO
-ALTER FUNCTION dbo.historialBandasMusicos(@nombreBanda varchar(50))
-RETURNS TABLE AS
-RETURN 
-(
-	SELECT M.ID, M.NombreArtistico, DATEDIFF(day,MB.FechaIncorporacion, MB.FechaIncorporacion) AS 'Diferencia'
-	FROM LFMusicos AS M
-	INNER JOIN LFMusicosBandas AS MB
-	  ON M.ID = MB.IDMusico
-	INNER JOIN LFBandas AS B
-	  ON MB.IDBanda = B.ID
-	GROUP BY M.ID, M.NombreArtistico, MB.FechaIncorporacion
-)
-GO
 
-SELECT * FROM dbo.historialBandasMusicos('Ejecucion hipotecaria')
-
-SELECT * FROM LFBandas
-
-SELECT * FROM LFMusicos
-
-SELECT * FROM LFMusicosBandas
-
-
-DECLARE @antiguedad Date
-
-SET @antiguedad = DATEDIFF(day,'2000-01-01', '2000-01-01')
-
-PRINT @antiguedad
-
-SELECT * FROM LFMusicosBandas
-ORDER BY IDMusico
-
-SELECT DATEDIFF(day,'2000-01-01', '2000-11-01')
-
-SELECT M.ID, DATEDIFF(day,MB.FechaIncorporacion, MB.FechaIncorporacion) AS 'Diferencia'
-	FROM LFMusicos AS M
-	INNER JOIN LFMusicosBandas AS MB
-	  ON M.ID = MB.IDMusico
-	INNER JOIN LFBandas AS B
-	  ON MB.IDBanda = B.ID
-	WHERE B.NombreBanda = 'Malditos bastardos' AND B.ID = MB.IDBanda
-	GROUP BY M.ID, MB.FechaIncorporacion
-	
 
 --Ejercicio 3
 --Algunas veces se organizan ediciones "revival" de un festival, en las que se programan las mismas bandas y las mismas canciones que una edición 
 --anterior del mismo festival o de otro. Escribe un procedimeinto almacenado que "clone" una edición de un festival.
---Los datos de entrada serán el ID del festival y la fecha de inicio de la edición que queremos clonar y el ID del festival y la 
+--Los datos de entrada serán el ID del festival y la fecha de inicio de la edición que queremos clonar y la 
 --fecha de inicio prevista para la nueva edición "revival". Todos los datos de esta ueva edición (duración, lema, etc) se copiaran del 
 --que estamos replicando.
+
+GO
+ALTER PROCEDURE EdicionesRevival @IDFestivalQueQueremosClonar int, @FechaInicioEdicionQueQueremosClonar smalldatetime, @FechaInicioPrevista smalldatetime
+AS
+BEGIN
+
+BEGIN TRANSACTION 
+	-- Insertamos nueva edicion
+	INSERT INTO LFEdiciones(IDFestival,Ordinal,Lema,Lugar,Ciudad,ComunidadAutonoma,FechaHoraInicio,FechaHoraFin)
+	SELECT @IDFestivalQueQueremosClonar AS IDFestival, (SELECT TOP 1 (Ordinal + 1) FROM LFEdiciones WHERE IDFestival = @IDFestivalQueQueremosClonar ORDER BY Ordinal DESC) AS Ordinal ,Lema,Lugar,Ciudad,ComunidadAutonoma,@FechaInicioPrevista AS FechaHoraInicio, DATEADD(DAY, DATEDIFF(DAY, FechaHoraInicio, FechaHoraFin), @FechaInicioPrevista) AS FechaHoraFin
+	FROM LFEdiciones
+	WHERE IDFestival = @IDFestivalQueQueremosClonar AND FechaHoraInicio = @FechaInicioEdicionQueQueremosClonar
+
+	-- Clonamos bandas
+	INSERT INTO LFBandasEdiciones
+	SELECT IDBanda, IDFestival,(SELECT TOP 1 Ordinal FROM LFEdiciones WHERE IDFestival = @IDFestivalQueQueremosClonar ORDER BY Ordinal DESC) AS Ordinal, Categoria
+	FROM LFBandasEdiciones
+	WHERE IDFestival = @IDFestivalQueQueremosClonar AND Ordinal = (SELECT Ordinal FROM LFEdiciones WHERE IDFestival = @IDFestivalQueQueremosClonar AND FechaHoraInicio = @FechaInicioEdicionQueQueremosClonar)
+
+	-- Clonamos temas
+	INSERT INTO LFTemasBandasEdiciones(IDBanda, IDFestival, Ordinal, IDTema)
+	SELECT IDBanda, IDFestival, (SELECT TOP 1 Ordinal FROM LFEdiciones WHERE IDFestival = @IDFestivalQueQueremosClonar ORDER BY Ordinal DESC), IDTema
+	FROM LFTemasBandasEdiciones
+	WHERE IDFestival = @IDFestivalQueQueremosClonar AND Ordinal = (SELECT Ordinal FROM LFEdiciones WHERE IDFestival = @IDFestivalQueQueremosClonar AND FechaHoraInicio = @FechaInicioEdicionQueQueremosClonar)
+
+COMMIT TRANSACTION
+
+END
+GO
+
+BEGIN TRANSACTION
+
+DECLARE @IDFestivalQueQueremosClonar int = 6
+DECLARE @FechaInicioEdicionQueQueremosClonar smalldatetime = '2011-11-08 19:28:00'
+DECLARE @FechaInicioPrevista smalldatetime = '2018-12-24 12:04:00'
+
+EXECUTE EdicionesRevival @IDFestivalQueQueremosClonar, @FechaInicioEdicionQueQueremosClonar,@FechaInicioPrevista
+
+ROLLBACK
+
+SELECT * FROM LFEdiciones
+
+SELECT * FROM LFBandasEdiciones
+WHERE IDFestival = 6 AND Ordinal = 7
+
+SELECT * FROM LFBandasEdiciones
+WHERE IDFestival = 6 AND Ordinal = 12
+
+SELECT * FROM LFTemasBandasEdiciones
+WHERE IDFestival = 6 AND Ordinal = 7
+
+SELECT * FROM LFTemasBandasEdiciones
+WHERE IDFestival = 6 AND Ordinal = 12
+
 
 --Ejercicio 4
 --Realiza una función que nos diga hasta qué punto una banda es fiel a sus estilos. Para ello, deberá contar cuantos temas de cada estilo 
