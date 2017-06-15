@@ -44,19 +44,22 @@ SELECT DISTINCT M1.nombre, M1.apellidos			-- Los que han compartido barco con Es
 --Crea una vista VTrabajoMonitores que contenga número de licencia, nombre y apellidos de cada monitor, número de cursos y número total de horas que ha impartido, así como el número total de alumnos que han participado en sus cursos. A la hora de contar los asistentes, se contaran participaciones, no personas. Es decir, si un mismo miembro ha asistido a tres cursos distintos, se contará como tres, no como uno. Deben incluirse los monitores a cuyos cursos no haya asistido nadie, para echarles una buena bronca.
 GO
 -- Esta vista añade a los datos del curso el número de asistentes
-CREATE VIEW VAsistentesCursos AS
-	SELECT C.codigo_curso, C.denominacion, C.duracion, C.f_inicio, C.licencia, COUNT (MC.licencia_federativa) AS Asistentes 
-		FROM EV_Cursos AS C 
-			JOIN EV_Miembros_Cursos AS MC ON C.codigo_curso = MC.codigo_curso
-		GROUP BY C.codigo_curso, C.denominacion, C.duracion, C.f_inicio, C.licencia
+ALTER VIEW VAsistentesCursos AS
+	SELECT C.codigo_curso, C.duracion, C.licencia, COUNT (MC.licencia_federativa) AS Asistentes 
+	FROM EV_Cursos AS C 
+	JOIN EV_Miembros_Cursos AS MC 
+	  ON C.codigo_curso = MC.codigo_curso
+	GROUP BY C.codigo_curso, C.denominacion, C.duracion, C.f_inicio, C.licencia
 GO
 -- Esta vista nos da número de cursos y horas totales de cada monitor
 CREATE VIEW V_TrabajoMonitores AS
-	SELECT M.nombre, M.apellidos, COUNT (*) AS [Cursos Impartidos], SUM(C.duracion) AS [Horas Totales], SUM(C.Asistentes) AS TotalAlumnos
-		FROM EV_Miembros AS M 
-			JOIN EV_Monitores As Mo ON M.licencia_federativa = Mo.licencia_federativa
-			JOIN VAsistentesCursos As C ON Mo.licencia_federativa = C.licencia
-		GROUP BY M.nombre, M.apellidos
+	SELECT M.nombre, M.apellidos, COUNT (C.codigo_curso) AS [Cursos Impartidos], SUM(C.duracion) AS [Horas Totales], SUM(C.Asistentes) AS TotalAlumnos
+	FROM EV_Miembros AS M 
+	JOIN EV_Monitores As MO
+	  ON M.licencia_federativa = MO.licencia_federativa
+	JOIN VAsistentesCursos As C 
+	  ON MO.licencia_federativa = C.licencia
+	GROUP BY M.nombre, M.apellidos
 GO
 --Ejercicio 4
 --Número de horas de cursos acumuladas por cada miembro que no haya disputado una regata en la clase 470 en los dos últimos años (2013 y 2014). Se contarán únicamente las regatas que se hayan disputado en un campo de regatas situado en longitud Oeste (W). Se sabe que la longitud es W porque el número es negativo.
