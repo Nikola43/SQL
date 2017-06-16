@@ -105,15 +105,36 @@ SELECT * FROM LFTemasBandasEdiciones
 WHERE IDFestival = 6 AND Ordinal = 12
 
 
+SELECT * 
+FROM LFBandas
+
+SELECT *
+FROM LFEstilos
+
+SELECT E.Estilo, COUNT(TBE.IDTema) AS NumeroCanciones
+FROM LFBandas AS B
+INNER JOIN LFTemasBandasEdiciones AS TBE
+  ON B.ID = TBE.IDBanda
+INNER JOIN LFTemas AS T
+  ON TBE.IDTema = T.ID
+INNER JOIN LFEstilos AS E
+  ON T.IDEstilo = E.ID
+GROUP BY E.Estilo
+WHERE 
+
+ SELECT * FROM LFBandasEstilos
+ WHERE IDBanda = 1
+
+ SELECT * FROM LFBandas
+
+
+
 --Ejercicio 4
 --Realiza una función que nos diga hasta qué punto una banda es fiel a sus estilos. Para ello, deberá contar cuantos temas de cada estilo 
 --ha interpretado y dividirlos en dos bloques, los que pertenecen a alguno de los estilos de la banda y los que no. Luego se calculará 
 --el porcentaje de temas que pertenecen a alguno de sus estilos respecto del total.
-
 --Se contarán las interpretaciones, no los temas. Es decir, si un mismo tema se ha interpretado cinco veces contará como cinco, no como uno.
-
 --El dato de entrada será el nombre de la banda y el de salida el índice de fidelidad, con un decimal.
-
 GO
 CREATE FUNCTION dbo.fidelidadEstilosTemas(@nombreBanda varchar(50))
     RETURNS decimal(6,2)
